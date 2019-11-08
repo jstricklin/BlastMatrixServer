@@ -1,0 +1,11 @@
+{
+  "name": "blastmatrixserver",
+  "version": "1.0.0",
+  "description": "Server For BlastMatrix3D",
+  "main": "index.js",
+  "scripts": {
+    "test": "nodemon index.js"
+  },
+  "author": "Jose Stricklin",
+  "license": "ISC"
+}
