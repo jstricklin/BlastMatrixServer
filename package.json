@@ -7,5 +7,9 @@
     "test": "nodemon index.js"
   },
   "author": "Jose Stricklin",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "shortid": "^2.2.15",
+    "socket.io": "^2.3.0"
+  }
 }
