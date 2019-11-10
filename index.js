@@ -4,10 +4,73 @@ const Player = require('./Classes/Player');
 const Vector3 = require('./Classes/Vector3');
 const Projectile = require('./Classes/Projectile');
 
+var projectiles = []
+var players = []
+var sockets = []
+
 // divide by ten for unity server update time
 setInterval(() => {
     // server.OnUpdate();
+    projectiles.forEach(projectile => {
+        var isDestroyed = projectile.OnUpdate();
+        // REMOVE
+        if (isDestroyed)
+        {
+            DespawnProjectile(projectile);
+        } else {
+            // var returnData = {
+            //     id: projectile.id,
+            //     speed: projectile.speed,
+            //     position: {
+            //         x: projectile.position.x,
+            //         y: projectile.position.y,
+            //         z: projectile.position.z,
+            //     }
+            // }
+            // for (var playerId in players)
+            // {
+            //     sockets[playerId].emit('updatePosition', returnData);
+            // }
+        }
+    })
+        // handle dead players
+        for (var playerID in players) {
+            let player = players[playerID];
+            if (player.isDead) {
+                let isRespawn = player.RespawnCounter();
+
+                if (isRespawn) {
+                    let returnData = {
+                        id: player.id,
+                        position: {
+                            x: player.position.x,
+                            y: player.position.y,
+                            z: player.position.z,
+                        }
+                    }
+                    sockets[playerID].emit('playerRespawn', returnData);
+                    sockets[playerID].broadcast.emit('playerRespawn', returnData);
+                }
+            }
+        }
 }, 100, 0)
+
+function DespawnProjectile(projectile = Projectile) {
+    console.log('Destroying Projectile');
+    var index = projectiles.indexOf(projectile);
+    if (index > -1)
+    {
+        projectiles.splice(index, 1);
+
+        var returnData = {
+            id: projectile.id,
+        }
+        for (var playerId in players)
+        {
+            sockets[playerId].emit('serverDespawn', returnData);
+        }
+    }
+}
 
 io.on('connection', (socket) => {
     // let connection = server.OnConnected(socket); 
@@ -18,19 +81,109 @@ io.on('connection', (socket) => {
     socket.emit('register', { 'id': newPlayer.id });
     newPlayer.position = new Vector3(5, 0.25, 15)
     socket.emit('spawn', newPlayer);
+    socket.broadcast.emit('spawn', newPlayer);
+    for (var playerId in players)
+    {
+        if (playerId != newPlayer.id) 
+        {
+            socket.emit("spawn", players[playerId]);
+        }
+    }
+    players[newPlayer.id] = newPlayer;
+    sockets[newPlayer.id] = socket;
     socket.on('fireProjectile', (e) => {
-        console.log("player has fired their cannon");
         let projectile = new Projectile();
-        // projectile.name = "Shell";
-        socket.emit('serverSpawn', projectile);
-        socket.broadcast.emit('serverSpawn', projectile);
+
+        projectile.position.x = e.position.x;
+        projectile.position.y = e.position.y;
+        projectile.position.z = e.position.z;
+
+        projectile.direction.x = e.direction.x;
+        projectile.direction.y = e.direction.y;
+        projectile.direction.z = e.direction.z;
+
+        projectiles.push(projectile);
+
+        var returnData = {
+            name: projectile.name,
+            id: projectile.id,
+            activator: e.activator,
+            position: {
+                x: projectile.position.x,
+                y: projectile.position.y,
+                z: projectile.position.z,
+            },
+            direction: {
+                x: projectile.direction.x,
+                y: projectile.direction.y,
+                z: projectile.direction.z,
+            },
+            speed: projectile.speed,
+        }
+        socket.emit('serverSpawn', returnData);
+        socket.broadcast.emit('serverSpawn', returnData);
     })
-})
-io.on('joinGame', (socket) => {
-    console.log("player has joined the game");
-    socket.broadcast.emit('joinedGame', {'id': socket.id});
-})
-io.on('disconnect', (socket) => {
-    console.log("player has disconnected");
-    socket.broadcast.emit('disconnected', {'id': socket.id});
+    socket.on('collisionDestroy', (e) => {
+        // connection.lobby.OnCollisionDestroy(connection, data);
+        let returnProjectiles = projectiles.filter(projectile => {
+            return projectile.id == e.id;
+        })
+
+        // will likely only deal with one entry, but iterate through array in case multiple returned
+        returnProjectiles.forEach(projectile => {
+
+            let playerHit = false;
+            // check if hit someone that is not us
+            for (var playerID in players) {
+                if (projectile.activator != playerID) {
+                    let player = players[playerID];
+                    let distance = projectile.position.Distance(player.position);
+
+                    if (distance < 2) {
+                        console.log("player hit");
+                        playerHit = true;
+                        let isDead = player.DealDamage(50); // half health
+                        if (isDead) {
+                            console.log("Player with id " + player.id + " has died");
+                            let returnData = {
+                                id: player.id
+                            }
+                            sockets[playerID].emit('playerDied', returnData);
+                            sockets[playerID].broadcast.emit('playerDied', returnData);
+                        } else {
+                            console.log("player with id " + player.id + " has ( " + player.health + " ) health left.");
+                        }
+                        projectile.isDestroyed = true;
+                        // DespawnProjectile(projectile);
+                    }
+                }
+            }
+            if (!playerHit)
+            projectile.isDestroyed = true;
+        });
+    });
+    socket.on('updatePosition', (data) => {
+       newPlayer.position.x = data.position.x;
+       newPlayer.position.y = data.position.y;
+       newPlayer.position.z = data.position.z;
+
+        socket.broadcast.emit('updatePosition', newPlayer);
+    });
+    socket.on('updateRotation', (data) => {
+       newPlayer.weaponRotation = data.rotation.weaponRotation;
+       newPlayer.barrelRotation = data.rotation.barrelRotation;
+       newPlayer.rotation = data.rotation.rotation;
+
+        socket.broadcast.emit('updateRotation', newPlayer);
+    });
+    socket.on('joinGame', (data) => {
+        console.log("player has joined the game");
+        socket.broadcast.emit('joinedGame', {'id': data.id});
+    })
+    socket.on('disconnect', (data) => {
+        console.log('Client Disconnected');
+        delete players[newPlayer.id];
+        delete sockets[newPlayer.id];
+        socket.broadcast.emit('disconnected', newPlayer);
+    })
 })
