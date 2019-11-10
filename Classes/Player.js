@@ -14,7 +14,7 @@ module.exports = class Player {
         this.health = new Number(100);
         this.isDead = false;
         this.respawnTicker = new Number(0);
-        this.respawnTimer = new Number(0);
+        this.respawnTime = new Number(0);
     }
 
     DisplayPlayerInformation() {
@@ -22,10 +22,11 @@ module.exports = class Player {
         return '(' + player.username + ':' + player.id + ')';
     }
     RespawnCounter() {
-        this.repawnTicker += 1;
-        if (this.repawnTicker >= 10) {
+        this.respawnTicker += 1;
+        if (this.respawnTicker >= 10) {
             this.respawnTicker = new Number(0);
-            this.respawnTime += 1;
+            this.respawnTime = this.respawnTime + 1;
+            console.log("ticking... " + this.respawnTime);
             // three second respawn time
             if (this.respawnTime >= 3) {
                 console.log("Respawning player: " + this.id);
@@ -33,7 +34,7 @@ module.exports = class Player {
                 this.respawnTicker = new Number(0);
                 this.respawnTime = new Number(0);
                 this.health = new Number(100);
-                this.position = new Vector3(0, 0, 0);
+                this.position = new Vector3(5, 0.25, 10);
 
                 return true;
             }

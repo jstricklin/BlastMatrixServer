@@ -33,30 +33,29 @@ setInterval(() => {
             // }
         }
     })
-        // handle dead players
-        for (var playerID in players) {
-            let player = players[playerID];
-            if (player.isDead) {
-                let isRespawn = player.RespawnCounter();
-
-                if (isRespawn) {
-                    let returnData = {
-                        id: player.id,
-                        position: {
-                            x: player.position.x,
-                            y: player.position.y,
-                            z: player.position.z,
-                        }
+    // handle dead players
+    for (var playerID in players) {
+        let player = players[playerID];
+        if (player.isDead) {
+            let isRespawn = player.RespawnCounter();
+            if (isRespawn) {
+                let returnData = {
+                    id: player.id,
+                    position: {
+                        x: player.position.x,
+                        y: player.position.y,
+                        z: player.position.z,
                     }
-                    sockets[playerID].emit('playerRespawn', returnData);
-                    sockets[playerID].broadcast.emit('playerRespawn', returnData);
                 }
+                console.log("respawn player: " + playerID);
+                sockets[playerID].emit('playerRespawn', returnData);
+                sockets[playerID].broadcast.emit('playerRespawn', returnData);
             }
         }
+    }
 }, 100, 0)
 
 function DespawnProjectile(projectile = Projectile) {
-    console.log('Destroying Projectile');
     var index = projectiles.indexOf(projectile);
     if (index > -1)
     {
@@ -93,6 +92,8 @@ io.on('connection', (socket) => {
     sockets[newPlayer.id] = socket;
     socket.on('fireProjectile', (e) => {
         let projectile = new Projectile();
+
+        projectile.activator = e.activator;
 
         projectile.position.x = e.position.x;
         projectile.position.y = e.position.y;
@@ -138,8 +139,8 @@ io.on('connection', (socket) => {
                 if (projectile.activator != playerID) {
                     let player = players[playerID];
                     let distance = projectile.position.Distance(player.position);
-
-                    if (distance < 2) {
+                    console.log("distance to player " + playerID + " - " + distance);
+                    if (distance < 15) {
                         console.log("player hit");
                         playerHit = true;
                         let isDead = player.DealDamage(50); // half health
