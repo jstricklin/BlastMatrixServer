@@ -4,6 +4,8 @@ const Player = require('./Classes/Player');
 const Vector3 = require('./Classes/Vector3');
 const Projectile = require('./Classes/Projectile');
 
+console.log('Server has started.');
+
 var projectiles = []
 var players = []
 var sockets = []
