@@ -1,4 +1,4 @@
-const port = process.env.port || 5280;
+const port = process.env.PORT || 5280;
 const io = require('socket.io')(port);
 const Player = require('./Classes/Player');
 const Vector3 = require('./Classes/Vector3');
