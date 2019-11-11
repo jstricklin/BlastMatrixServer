@@ -23,7 +23,8 @@ setInterval(() => {
             //     speed: projectile.speed,
             //     position: {
             //         x: projectile.position.x,
-            //         y: projectile.position.y,
+            //         y: projectile.position.y,/console
+
             //         z: projectile.position.z,
             //     }
             // }
@@ -129,7 +130,7 @@ io.on('connection', (socket) => {
         let returnProjectiles = projectiles.filter(projectile => {
             return projectile.id == e.id;
         })
-
+        console.log(`found projectiles: ${returnProjectiles.length}`);
         // will likely only deal with one entry, but iterate through array in case multiple returned
         returnProjectiles.forEach(projectile => {
 
@@ -138,9 +139,10 @@ io.on('connection', (socket) => {
             for (var playerID in players) {
                 if (projectile.activator != playerID) {
                     let player = players[playerID];
+                    // console.log(`projectile position: ${projectile.position.x}, ${projectile.position.y}, ${projectile.position.z} player position ${player.position.x}, ${player.position.y}, ${player.position.z}`);
                     let distance = projectile.position.Distance(player.position);
                     console.log("distance to player " + playerID + " - " + distance);
-                    if (distance < 15) {
+                    if (distance < 5) {
                         console.log("player hit");
                         playerHit = true;
                         let isDead = player.DealDamage(50); // half health
@@ -154,8 +156,9 @@ io.on('connection', (socket) => {
                         } else {
                             console.log("player with id " + player.id + " has ( " + player.health + " ) health left.");
                         }
-                        projectile.isDestroyed = true;
-                        // DespawnProjectile(projectile);
+                        // projectile.isDestroyed = true;
+                        
+                        DespawnProjectile(projectile);
                     }
                 }
             }
@@ -170,11 +173,32 @@ io.on('connection', (socket) => {
 
         socket.broadcast.emit('updatePosition', newPlayer);
     });
+    socket.on('updateProjectile', (data) => {
+        let returnProjectiles = projectiles.filter(projectile => {
+            return projectile.id == data.id;
+        })
+        returnProjectiles.forEach(projectile => {
+            projectile.position.x = data.position.x
+            projectile.position.y = data.position.y
+            projectile.position.z = data.position.z
+            let returnData = {
+                id: data.id,
+                isProjectile: true,
+                position: {
+                    x: data.position.x,
+                    y: data.position.y,
+                    z: data.position.z,
+                }
+            }
+            // console.log("projectile id: " + data.id);
+            socket.broadcast.emit('updatePosition', returnData)
+        });
+    });
     socket.on('updateRotation', (data) => {
        newPlayer.weaponRotation = data.rotation.weaponRotation;
        newPlayer.barrelRotation = data.rotation.barrelRotation;
        newPlayer.rotation = data.rotation.rotation;
-
+        
         socket.broadcast.emit('updateRotation', newPlayer);
     });
     socket.on('joinGame', (data) => {

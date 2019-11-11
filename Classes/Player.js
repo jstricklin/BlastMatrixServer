@@ -26,7 +26,7 @@ module.exports = class Player {
         if (this.respawnTicker >= 10) {
             this.respawnTicker = new Number(0);
             this.respawnTime = this.respawnTime + 1;
-            console.log("ticking... " + this.respawnTime);
+            // console.log("ticking... " + this.respawnTime);
             // three second respawn time
             if (this.respawnTime >= 3) {
                 console.log("Respawning player: " + this.id);
