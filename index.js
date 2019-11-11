@@ -132,7 +132,7 @@ io.on('connection', (socket) => {
         let returnProjectiles = projectiles.filter(projectile => {
             return projectile.id == e.id;
         })
-        console.log(`found projectiles: ${returnProjectiles.length}`);
+        // console.log(`found projectiles: ${returnProjectiles.length}`);
         // will likely only deal with one entry, but iterate through array in case multiple returned
         returnProjectiles.forEach(projectile => {
 
@@ -173,6 +173,7 @@ io.on('connection', (socket) => {
        newPlayer.position.y = data.position.y;
        newPlayer.position.z = data.position.z;
 
+        console.log("updating position");
         socket.broadcast.emit('updatePosition', newPlayer);
     });
     socket.on('updateProjectile', (data) => {
@@ -200,7 +201,7 @@ io.on('connection', (socket) => {
        newPlayer.weaponRotation = data.rotation.weaponRotation;
        newPlayer.barrelRotation = data.rotation.barrelRotation;
        newPlayer.rotation = data.rotation.rotation;
-        
+        // console.log("updating rotation");
         socket.broadcast.emit('updateRotation', newPlayer);
     });
     socket.on('joinGame', (data) => {
