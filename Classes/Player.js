@@ -34,7 +34,7 @@ module.exports = class Player {
                 this.respawnTicker = new Number(0);
                 this.respawnTime = new Number(0);
                 this.health = new Number(100);
-                this.position = new Vector3(5, 0.25, 10);
+                this.position = new Vector3(5, 0.85, 10);
 
                 return true;
             }
