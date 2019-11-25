@@ -232,7 +232,7 @@ module.exports = class GameLobby extends LobbyBase {
         let socket = connection.socket;
         let player = connection.player;
 
-        player.position = new Vector3(5, 5, 15)
+        player.position = new Vector3(5, 0.85, 15)
         // let returnData = {
         //     id: connection.player.id,
         // }
