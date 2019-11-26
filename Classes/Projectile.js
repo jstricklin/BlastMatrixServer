@@ -6,7 +6,7 @@ module.exports = class Projectile extends ServerObject {
         super();
         this.name = "Shell";
         this.direction = new Vector3();
-        this.speed = 10;
+        this.speed = 25;
         this.isDestroyed = false;
         this.activator = '';
     }
