@@ -92,7 +92,14 @@ module.exports = class Server {
     {
         console.log("register username: " + data.username);
         // TODO add username validation logic
-        connection.player.username = data.username;
+        if (data.username != "") {
+            connection.player.username = data.username;
+        } else {
+            // blank names here - random names, etc
+        }
+        connection.socket.emit("usernameRegistered", {
+            username: connection.player.username,
+        });
     }
 
     OnSwitchLobby(connection = Connection, lobbyId) {
