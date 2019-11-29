@@ -37,8 +37,8 @@ module.exports = class GameLobby extends LobbyBase {
         let socket = connection.socket;
 
         super.OnEnterLobby(connection);
-        lobby.AddPlayer(connection);
         socket.emit('loadGame', connection.player.name);
+        lobby.AddPlayer(connection);
         //handle spawning any server spawned objects here
         //example: loot, or flying bullets, etc
 
@@ -204,7 +204,7 @@ module.exports = class GameLobby extends LobbyBase {
                     if (distance < 5) {
                         console.log("player hit");
                         playerHit = true;
-                        let isDead = player.DealDamage(50); // half health
+                        let isDead = player.DealDamage(35); // half health
                         if (isDead) {
                             console.log("Player with id " + player.id + " has died");
                             let returnData = {
@@ -213,6 +213,12 @@ module.exports = class GameLobby extends LobbyBase {
                             c.socket.emit('playerDied', returnData);
                             c.socket.broadcast.to(lobby.id).emit('playerDied', returnData);
                         } else {
+                            let returnData = {
+                                id: player.id,
+                                currentHealth: player.health
+                            }
+                            c.socket.emit('playerHit', returnData);
+                            c.socket.broadcast.to(lobby.id).emit('playerHit', returnData);
                             console.log("player with id " + player.id + " has ( " + player.health + " ) health left.");
                         }
                         // projectile.isDestroyed = true;

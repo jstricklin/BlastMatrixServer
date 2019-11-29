@@ -88,6 +88,13 @@ module.exports = class Server {
         }
     }
 
+    OnRegisterUsername(connection = Connection, data)
+    {
+        console.log("register username: " + data.username);
+        // TODO add username validation logic
+        connection.player.username = data.username;
+    }
+
     OnSwitchLobby(connection = Connection, lobbyId) {
         let server = this;
         let lobbies = server.lobbies;

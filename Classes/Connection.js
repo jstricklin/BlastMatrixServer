@@ -12,6 +12,9 @@ module.exports = class Connection {
         let server = connection.server;
         let player = connection.player;
 
+        socket.on('registerUsername', (data) => {
+            server.OnRegisterUsername(connection, data);
+        });
         socket.on('disconnect', () => {
             server.OnDisconnected(connection);
         });
