@@ -4,6 +4,7 @@ module.exports = class LobbyBase {
     constructor(id) {
         this.id = id;
         this.connections = [];
+        this.startTime = new Date();
     }
 
     OnUpdate() {}
@@ -32,6 +33,8 @@ module.exports = class LobbyBase {
         if (index > -1) {
             lobby.connections.splice(index, 1);
         }
-
+    }
+    GetMatchTime() {
+        return new Date() - this.startTime;
     }
 }

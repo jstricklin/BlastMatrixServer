@@ -7,6 +7,9 @@ const Vector3 = require('../Vector3');
 const Damage = require('../Utility/Damage');
 
 module.exports = class GameLobby extends LobbyBase {
+
+    
+
     constructor(id, settings = GameLobbySettings) {
         super(id);
         this.settings = settings;
@@ -271,4 +274,5 @@ module.exports = class GameLobby extends LobbyBase {
             id: connection.player.id,
         });
     }
+
 }

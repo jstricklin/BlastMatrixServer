@@ -16,66 +16,7 @@ let server = new Server();
 // divide by ten for unity server update time
 setInterval(() => {
     server.OnUpdate();
-    // projectiles.forEach(projectile => {
-    //     var isDestroyed = projectile.OnUpdate();
-    //     // REMOVE
-    //     if (isDestroyed)
-    //     {
-    //         DespawnProjectile(projectile);
-    //     } else {
-            // var returnData = {
-            //     id: projectile.id,
-            //     speed: projectile.speed,
-            //     position: {
-            //         x: projectile.position.x,
-            //         y: projectile.position.y,/console
-
-            //         z: projectile.position.z,
-            //     }
-            // }
-            // for (var playerId in players)
-            // {
-            //     sockets[playerId].emit('updatePosition', returnData);
-            // }
-        // }
-    // })
-    // handle dead players
-    // for (var playerID in players) {
-    //     let player = players[playerID];
-    //     if (player.isDead) {
-    //         let isRespawn = player.RespawnCounter();
-    //         if (isRespawn) {
-    //             let returnData = {
-    //                 id: player.id,
-    //                 position: {
-    //                     x: player.position.x,
-    //                     y: player.position.y,
-    //                     z: player.position.z,
-    //                 }
-    //             }
-    //             console.log("respawn player: " + playerID);
-    //             sockets[playerID].emit('playerRespawn', returnData);
-    //             sockets[playerID].broadcast.emit('playerRespawn', returnData);
-    //         }
-    //     }
-    // }
 }, 100, 0)
-
-// function DespawnProjectile(projectile = Projectile) {
-//     var index = projectiles.indexOf(projectile);
-//     if (index > -1)
-//     {
-//         projectiles.splice(index, 1);
-
-//         var returnData = {
-//             id: projectile.id,
-//         }
-//         for (var playerId in players)
-//         {
-//             sockets[playerId].emit('serverDespawn', returnData);
-//         }
-//     }
-// }
 
 io.on('connection', (socket) => {
     // let connection = server.OnConnected(socket); 

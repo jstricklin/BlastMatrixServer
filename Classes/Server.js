@@ -56,6 +56,11 @@ module.exports = class Server {
         });
         // cleanup lobby
         server.lobbies[connection.player.lobby].OnLeaveLobby(connection);
+        if (server.lobbies[connection.player.lobby].connections.length < 1)
+        {
+            console.log("removing empty lobby");
+            delete server.lobbies[connection.player.lobby];
+        }
     }
 
     OnAttemptToJoinGame(connection = Connection) {
