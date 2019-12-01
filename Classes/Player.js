@@ -12,6 +12,7 @@ module.exports = class Player {
         this.cannonRotation = new Rotation();
         this.barrelRotation = new Rotation();
         this.health = new Number(100);
+        this.score = new Number(0);
         this.isDead = false;
         this.respawnTicker = new Number(0);
         this.respawnTime = new Number(0);

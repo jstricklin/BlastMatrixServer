@@ -4,6 +4,7 @@ const Connection = require('../Connection');
 const Projectile = require('../Projectile');
 const LobbyState = require('../Utility/LobbyState');
 const Vector3 = require('../Vector3');
+const Damage = require('../Utility/Damage');
 
 module.exports = class GameLobby extends LobbyBase {
     constructor(id, settings = GameLobbySettings) {
@@ -11,8 +12,8 @@ module.exports = class GameLobby extends LobbyBase {
         this.settings = settings;
         this.LobbyState = new LobbyState();
         this.projectiles = [];
+        this.Damage = new Damage();
     }
-
     OnUpdate() {
         let lobby = this;
         lobby.UpdateProjectiles();
@@ -201,21 +202,31 @@ module.exports = class GameLobby extends LobbyBase {
                     // console.log(`projectile position: ${projectile.position.x}, ${projectile.position.y}, ${projectile.position.z} player position ${player.position.x}, ${player.position.y}, ${player.position.z}`);
                     let distance = projectile.position.Distance(player.position);
                     console.log("distance to player " + player.id + " - " + distance);
-                    if (distance < 5) {
+                    if (distance < this.settings.blastRadius) {
                         console.log("player hit");
                         playerHit = true;
-                        let isDead = player.DealDamage(35); // half health
+                        let dmg = Math.floor(this.Damage.ScaleDamageByDistance(this.settings.baseDamage, distance, this.settings.blastRadius));
+                        let score = Math.ceil(dmg * 10)
+                        let isDead = player.DealDamage(dmg); // half health
+                        connection.player.score += score;
                         if (isDead) {
                             console.log("Player with id " + player.id + " has died");
                             let returnData = {
-                                id: player.id
+                                id: player.id,
+                                attackerId: projectile.activator,
+                                hitScore: score,
+                                playerScore: connection.player.score,
                             }
                             c.socket.emit('playerDied', returnData);
                             c.socket.broadcast.to(lobby.id).emit('playerDied', returnData);
                         } else {
                             let returnData = {
                                 id: player.id,
-                                currentHealth: player.health
+                                currentHealth: player.health,
+                                damage: dmg,
+                                hitScore: score,
+                                playerScore: connection.player.score,
+                                attackerId: projectile.activator,
                             }
                             c.socket.emit('playerHit', returnData);
                             c.socket.broadcast.to(lobby.id).emit('playerHit', returnData);
