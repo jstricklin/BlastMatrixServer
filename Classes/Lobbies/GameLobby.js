@@ -35,7 +35,7 @@ module.exports = class GameLobby extends LobbyBase {
         console.log('connections in lobby... ' + currentPlayerCount + " - " + "max players: " + maxPlayerCount);
 
         // written to check as a new player joining a full server
-        if (currentPlayerCount + 1 > maxPlayerCount) {
+        if (currentPlayerCount + 1 > maxPlayerCount && lobby.LobbyState.currentState != LobbyState.ENDGAME) {
             return false;
         }
         return true;
