@@ -4,5 +4,6 @@ module.exports = class GameLobbySettings {
         this.maxPlayers = maxPlayers;
         this.blastRadius = 5;
         this.baseDamage = 35;
+        this.gameLength = 180;
     }
 }

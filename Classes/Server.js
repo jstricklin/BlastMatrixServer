@@ -1,10 +1,11 @@
-let Connection = require('./Connection')
-let Player = require('./Player')
+const Connection = require('./Connection');
+const Player = require('./Player');
+const LobbyState = require('./Utility/LobbyState');
 
 // lobbies
-let LobbyBase = require('./Abstract/LobbyBase')
-let GameLobby = require('./Lobbies/GameLobby')
-let GameLobbySettings = require('./Lobbies/GameLobbySettings')
+const LobbyBase = require('./Abstract/LobbyBase');
+const GameLobby = require('./Lobbies/GameLobby');
+const GameLobbySettings = require('./Lobbies/GameLobbySettings');
 
 module.exports = class Server {
     constructor() {
@@ -19,7 +20,10 @@ module.exports = class Server {
         let server = this;
         // update each lobby
         for (let id in server.lobbies) {
-            server.lobbies[id].OnUpdate();
+            if (server.lobbies[id].LobbyState.currentState == LobbyState.GAME) {
+                console.log("updating server");
+                server.lobbies[id].OnUpdate();
+            }
         }
     }
 
@@ -56,11 +60,6 @@ module.exports = class Server {
         });
         // cleanup lobby
         server.lobbies[connection.player.lobby].OnLeaveLobby(connection);
-        if (server.lobbies[connection.player.lobby].connections.length < 1)
-        {
-            console.log("removing empty lobby");
-            delete server.lobbies[connection.player.lobby];
-        }
     }
 
     OnAttemptToJoinGame(connection = Connection) {
@@ -116,5 +115,10 @@ module.exports = class Server {
 
         lobbies[connection.player.lobby].OnLeaveLobby(connection);
         lobbies[lobbyId].OnEnterLobby(connection);
+        if (lobbies[connection.player.lobby].connections.length < 1)
+        {
+            console.log("removing empty lobby");
+            delete lobbies[connection.player.lobby];
+        }
     }
 }

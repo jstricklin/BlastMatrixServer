@@ -8,19 +8,24 @@ const Damage = require('../Utility/Damage');
 
 module.exports = class GameLobby extends LobbyBase {
 
-    
 
     constructor(id, settings = GameLobbySettings) {
         super(id);
         this.settings = settings;
-        this.LobbyState = new LobbyState();
         this.projectiles = [];
         this.Damage = new Damage();
+        this.timeRemaining = new Number(0);
+        this.lastMatchEnd = new Date();
+
+        this.LobbyState.currentState = LobbyState.GAME;
     }
     OnUpdate() {
         let lobby = this;
+        console.log("updating lobby");
         lobby.UpdateProjectiles();
         lobby.UpdateDeadPlayers();
+        lobby.UpdateMatchTime();
+        lobby.UpdateGameState();
     }
 
     CanEnterLobby(connection = Connection) {
@@ -275,4 +280,79 @@ module.exports = class GameLobby extends LobbyBase {
         });
     }
 
+    UpdateGameState() {
+        if (this.LobbyState.currentState == LobbyState.GAME && this.timeRemaining <= 0) {
+            console.log("endGame");
+            let lobby = this;
+            this.LobbyState.currentState = LobbyState.ENDGAME;
+            this.lastMatchEnd = new Date();
+            let resultsArr = this.connections.sort((a, b) => {
+                return b.player.score - a.player.score;
+            });
+            let resultString = "";
+            resultsArr.map((res, i) => {
+                resultString += `${i+1}   ${res.player.username}    ${res.player.score}\n`
+            });
+            this.connections.forEach(c => {
+
+                c.socket.emit("serverDespawn", {
+                    id: c.player.id
+                });
+                c.socket.broadcast.to(lobby.id).emit("serverDespawn", {
+                    id: c.player.id
+                });
+
+                this.timeRemaining = 5;
+
+                c.socket.emit('endGame', {
+                    matchResults: resultString,
+                    countdownTime: 5,
+                })
+            });
+        }
+    }
+
+    UpdateNextMatchTime() {
+        this.timeRemaining = (this.settings.gameLength + 5) - (upTime - lastMatchEnd);
+        if (this.timeRemaining <= 0)
+        {
+            this.ResetGame();
+        }
+        console.log(`next match in: ${this.timeRemaining}`)
+    }
+
+    UpdateMatchTime() {
+        let upTime = super.GetMatchTime();
+        this.timeRemaining = (this.settings.gameLength + 5) - upTime;
+        console.log(`lobbyId: ${this.id} upTime: ${upTime} timeLeft: ${this.timeRemaining}`)
+        this.connections.forEach(c => {
+            c.socket.emit('updateGameClock', {
+                timeRemaining: this.timeRemaining,
+            })
+        });
+    }
+
+    ResetGame()
+    {
+        console.log("resetting game");
+        let lobby = this;
+        this.connections.forEach(c => {
+            let player = c.player;
+            c.socket.emit('loadGame');
+            player.position = new Vector3(5, 0.85, 15)
+            // let returnData = {
+            //     id: connection.player.id,
+            // }
+            console.log('spawning player...');
+            socket.emit('spawn', c.player); // tell myself it has spawned
+            socket.broadcast.to(lobby.id).emit('spawn', c.player); // tell other sockets of new spawn
+
+            // tell myself about everyone else in the game
+            // connections.forEach(c => {
+            //     if (c.player.id != connection.player.id) {
+            //         socket.emit('spawn', c.player);
+            //     }
+            // });
+        });
+    }
 }

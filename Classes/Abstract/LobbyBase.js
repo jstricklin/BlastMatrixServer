@@ -1,10 +1,12 @@
 let Connection = require('../Connection')
+const LobbyState = require('../Utility/LobbyState')
 
 module.exports = class LobbyBase {
     constructor(id) {
         this.id = id;
         this.connections = [];
         this.startTime = new Date();
+        this.LobbyState = new LobbyState();
     }
 
     OnUpdate() {}
@@ -35,6 +37,6 @@ module.exports = class LobbyBase {
         }
     }
     GetMatchTime() {
-        return new Date() - this.startTime;
+        return Math.round((new Date() - this.startTime) * 0.001);
     }
 }
