@@ -20,10 +20,7 @@ module.exports = class Server {
         let server = this;
         // update each lobby
         for (let id in server.lobbies) {
-            if (server.lobbies[id].LobbyState.currentState == LobbyState.GAME) {
-                console.log("updating server");
-                server.lobbies[id].OnUpdate();
-            }
+            server.lobbies[id].OnUpdate();
         }
     }
 

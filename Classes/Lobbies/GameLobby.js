@@ -17,15 +17,18 @@ module.exports = class GameLobby extends LobbyBase {
         this.timeRemaining = new Number(0);
         this.lastMatchEnd = new Date();
 
-        this.LobbyState.currentState = LobbyState.GAME;
+        this.LobbyState.currentState = this.LobbyState.GAME;
     }
     OnUpdate() {
         let lobby = this;
-        console.log("updating lobby");
-        lobby.UpdateProjectiles();
-        lobby.UpdateDeadPlayers();
-        lobby.UpdateMatchTime();
-        lobby.UpdateGameState();
+        if (this.LobbyState.currentState == this.LobbyState.GAME) {
+            lobby.UpdateProjectiles();
+            lobby.UpdateDeadPlayers();
+            lobby.UpdateMatchTime();
+            lobby.UpdateGameState();
+        } else if (this.LobbyState.currentState == this.LobbyState.ENDGAME) {
+            lobby.UpdateNextMatchTime();
+        }
     }
 
     CanEnterLobby(connection = Connection) {
@@ -35,7 +38,7 @@ module.exports = class GameLobby extends LobbyBase {
         console.log('connections in lobby... ' + currentPlayerCount + " - " + "max players: " + maxPlayerCount);
 
         // written to check as a new player joining a full server
-        if (currentPlayerCount + 1 > maxPlayerCount && lobby.LobbyState.currentState != LobbyState.ENDGAME) {
+        if (currentPlayerCount + 1 > maxPlayerCount && lobby.LobbyState.currentState != this.LobbyState.ENDGAME) {
             return false;
         }
         return true;
@@ -281,10 +284,11 @@ module.exports = class GameLobby extends LobbyBase {
     }
 
     UpdateGameState() {
-        if (this.LobbyState.currentState == LobbyState.GAME && this.timeRemaining <= 0) {
+        if (this.LobbyState.currentState == this.LobbyState.GAME && this.timeRemaining <= 0) {
             console.log("endGame");
             let lobby = this;
-            this.LobbyState.currentState = LobbyState.ENDGAME;
+            this.LobbyState.currentState = this.LobbyState.ENDGAME;
+            console.log("lobby state " + this.LobbyState.currentState)
             this.lastMatchEnd = new Date();
             let resultsArr = this.connections.sort((a, b) => {
                 return b.player.score - a.player.score;
@@ -293,7 +297,7 @@ module.exports = class GameLobby extends LobbyBase {
             resultsArr.map((res, i) => {
                 resultString += `${i+1}   ${res.player.username}    ${res.player.score}\n`
             });
-            this.connections.forEach(c => {
+            lobby.connections.forEach(c => {
 
                 c.socket.emit("serverDespawn", {
                     id: c.player.id
@@ -313,18 +317,19 @@ module.exports = class GameLobby extends LobbyBase {
     }
 
     UpdateNextMatchTime() {
-        this.timeRemaining = (this.settings.gameLength + 5) - (upTime - lastMatchEnd);
-        if (this.timeRemaining <= 0)
+        this.timeRemaining = (new Date() - this.lastMatchEnd);
+        // console.log('time till next match: ' + this.timeRemaining);
+        if (this.timeRemaining >= 5000)
         {
             this.ResetGame();
         }
-        console.log(`next match in: ${this.timeRemaining}`)
+        // console.log(`next match in: ${this.timeRemaining}`)
     }
 
     UpdateMatchTime() {
         let upTime = super.GetMatchTime();
         this.timeRemaining = (this.settings.gameLength + 5) - upTime;
-        console.log(`lobbyId: ${this.id} upTime: ${upTime} timeLeft: ${this.timeRemaining}`)
+        // console.log(`lobbyId: ${this.id} upTime: ${upTime} timeLeft: ${this.timeRemaining}`)
         this.connections.forEach(c => {
             c.socket.emit('updateGameClock', {
                 timeRemaining: this.timeRemaining,
@@ -338,21 +343,16 @@ module.exports = class GameLobby extends LobbyBase {
         let lobby = this;
         this.connections.forEach(c => {
             let player = c.player;
-            c.socket.emit('loadGame');
+            c.socket.emit('loadGame', c.player.name);
             player.position = new Vector3(5, 0.85, 15)
-            // let returnData = {
-            //     id: connection.player.id,
-            // }
+            player.score = 0;
             console.log('spawning player...');
-            socket.emit('spawn', c.player); // tell myself it has spawned
-            socket.broadcast.to(lobby.id).emit('spawn', c.player); // tell other sockets of new spawn
+            c.socket.emit('spawn', c.player); // tell myself it has spawned
+            c.socket.broadcast.to(lobby.id).emit('spawn', c.player); // tell other sockets of new spawn
 
-            // tell myself about everyone else in the game
-            // connections.forEach(c => {
-            //     if (c.player.id != connection.player.id) {
-            //         socket.emit('spawn', c.player);
-            //     }
-            // });
         });
+        this.startTime = new Date();
+        this.timeRemaining = this.settings.gameLength;
+        this.LobbyState.currentState = this.LobbyState.GAME;
     }
 }
