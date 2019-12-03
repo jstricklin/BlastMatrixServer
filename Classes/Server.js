@@ -21,6 +21,11 @@ module.exports = class Server {
         // update each lobby
         for (let id in server.lobbies) {
             server.lobbies[id].OnUpdate();
+            if (server.lobbies[id].connections.length < 1 && server.lobbies[id] != server.lobbies[0])
+            {
+                console.log("removing empty lobby FIX");
+                // delete server.lobbies[id];
+            }
         }
     }
 
@@ -83,7 +88,7 @@ module.exports = class Server {
         // all lobbies are full or we have not create one yet
         if (!lobbyFound) {
             console.log('making new game lobby');
-            let gameLobby = new GameLobby(gameLobbies.length + 1, new GameLobbySettings('FFA', 4));
+            let gameLobby = new GameLobby(gameLobbies.length + 1, new GameLobbySettings('FFA', 6));
             server.lobbies.push(gameLobby);
             server.OnSwitchLobby(connection, gameLobby.id);
         }
@@ -112,10 +117,5 @@ module.exports = class Server {
 
         lobbies[connection.player.lobby].OnLeaveLobby(connection);
         lobbies[lobbyId].OnEnterLobby(connection);
-        if (lobbies[connection.player.lobby].connections.length < 1)
-        {
-            console.log("removing empty lobby");
-            delete lobbies[connection.player.lobby];
-        }
     }
 }

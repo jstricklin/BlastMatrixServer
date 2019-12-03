@@ -25,6 +25,7 @@ module.exports = class GameLobby extends LobbyBase {
             lobby.UpdateProjectiles();
             lobby.UpdateDeadPlayers();
             lobby.UpdateMatchTime();
+            lobby.UpdateMatchScores();
             lobby.UpdateGameState();
         } else if (this.LobbyState.currentState == this.LobbyState.ENDGAME) {
             lobby.UpdateNextMatchTime();
@@ -306,11 +307,9 @@ module.exports = class GameLobby extends LobbyBase {
                     id: c.player.id
                 });
 
-                this.timeRemaining = 5;
-
                 c.socket.emit('endGame', {
                     matchResults: resultString,
-                    countdownTime: 5,
+                    countdownTime: 10,
                 })
             });
         }
@@ -319,7 +318,7 @@ module.exports = class GameLobby extends LobbyBase {
     UpdateNextMatchTime() {
         this.timeRemaining = (new Date() - this.lastMatchEnd);
         // console.log('time till next match: ' + this.timeRemaining);
-        if (this.timeRemaining >= 5000)
+        if (this.timeRemaining >= 10000)
         {
             this.ResetGame();
         }
@@ -333,6 +332,22 @@ module.exports = class GameLobby extends LobbyBase {
         this.connections.forEach(c => {
             c.socket.emit('updateGameClock', {
                 timeRemaining: this.timeRemaining,
+            })
+        });
+    }
+
+    UpdateMatchScores() {
+        let resultsArr = this.connections.sort((a, b) => {
+            return b.player.score - a.player.score;
+        });
+        let resultString = "";
+        resultsArr.map((res, i) => {
+            resultString += `${i+1}   ${res.player.username}    ${res.player.score}\n`
+        });
+        // console.log(`lobbyId: ${this.id} upTime: ${upTime} timeLeft: ${this.timeRemaining}`)
+        this.connections.forEach(c => {
+            c.socket.emit('updateMatchScores', {
+                matchScores: resultString,
             })
         });
     }
