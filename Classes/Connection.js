@@ -24,9 +24,9 @@ module.exports = class Connection {
         socket.on('exitGame', () => {
             connection.socket.emit("exitGame", {});
             let id = connection.player.id;
-            connection.socket.broadcast.to(connection.player.lobby).emit('disconnected', {
-                id: id,
-            });
+            // connection.socket.broadcast.to(connection.player.lobby).emit('disconnected', {
+            //     id: id,
+            // });
             server.OnSwitchLobby(connection, 0);
         });
         socket.on('fireProjectile', (data) => {

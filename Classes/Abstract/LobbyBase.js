@@ -15,7 +15,7 @@ module.exports = class LobbyBase {
         let lobby = this;
         let player = connection.player;
 
-        console.log('Player ' + player.DisplayPlayerInformation() + ' has entered  the Lobby (' + lobby.id + ')');
+        console.log('Player ' + player.DisplayPlayerInformation() + ' has entered  the Lobby (' + lobby.id + ') ' + '(' + (this.connections.length + 1) + ' players)');
 
         lobby.connections.push(connection);
 
@@ -27,7 +27,7 @@ module.exports = class LobbyBase {
         let lobby = this;
         let player = connection.player;
 
-        console.log('Player ' + player.DisplayPlayerInformation() + ' has left the Lobby (' + lobby.id + ')');
+        console.log('Player ' + player.DisplayPlayerInformation() + ' has left the Lobby (' + lobby.id + ')' + '(' + (this.connections.length - 1) + ' players)');
 
         connection.lobby = undefined;
         let index = lobby.connections.indexOf(connection);
