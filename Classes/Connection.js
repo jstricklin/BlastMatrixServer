@@ -1,3 +1,5 @@
+const GameLobby = require('./Lobbies/GameLobby')
+
 module.exports = class Connection {
     constructor() {
         this.socket;
@@ -15,11 +17,28 @@ module.exports = class Connection {
         socket.on('registerUsername', (data) => {
             server.OnRegisterUsername(connection, data);
         });
+        socket.on('queryLobbies', () => {
+            let lobbies = {};
+            server.lobbies.map(lobby => {
+                if (lobby instanceof GameLobby) {
+                    lobbies[lobby.id] = { settings: lobby.settings, playerCount: lobby.connections.length };
+                }
+            });
+            connection.socket.emit("lobbyQuery", lobbies);
+        })
         socket.on('disconnect', () => {
             server.OnDisconnected(connection);
         });
-        socket.on('joinGame', () => {
+        socket.on('quickPlay', () => {
             server.OnAttemptToJoinGame(connection);
+        });
+        socket.on('createLobby', (data) => {
+            server.OnCreateLobby(connection, data);
+        });
+        socket.on('joinGame', (data) => {
+            console.log("attempting join game...");
+            console.log("join game: " + data.lobbyId);
+            server.OnSwitchLobby(connection, data.lobbyId);
         });
         socket.on('exitGame', () => {
             connection.socket.emit("exitGame", {});

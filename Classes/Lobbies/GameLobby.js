@@ -11,7 +11,7 @@ module.exports = class GameLobby extends LobbyBase {
 
     constructor(id, settings = GameLobbySettings) {
         super(id);
-        this.settings = settings;
+        this.settings = settings; 
         this.projectiles = [];
         this.Damage = new Damage();
         this.timeRemaining = new Number(0);
@@ -30,7 +30,18 @@ module.exports = class GameLobby extends LobbyBase {
         } else if (this.LobbyState.currentState == this.LobbyState.ENDGAME) {
             lobby.UpdateNextMatchTime();
         }
+        // this.CleanupEmptyLobby()
     }
+
+    // CleanupEmptyLobby()
+    // {
+    //     console.log("uptime... " + this.GetMatchTime());
+    //     if (this.connections.length < 1 && this.GetMatchTime() > 5)
+    //     {
+    //         delete this.server
+    //         console.log("server empty... uptime: " + this.GetMatchTime());
+    //     }
+    // }
 
     CanEnterLobby(connection = Connection) {
         let lobby = this;
