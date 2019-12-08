@@ -1,5 +1,6 @@
-let Connection = require('../Connection')
-const LobbyState = require('../Utility/LobbyState')
+let Connection = require('../Connection');
+const LobbyState = require('../Utility/LobbyState');
+const Message = require('../Message');
 
 module.exports = class LobbyBase {
     constructor(id) {
@@ -7,6 +8,7 @@ module.exports = class LobbyBase {
         this.connections = [];
         this.startTime = new Date();
         this.LobbyState = new LobbyState();
+        this.messages = [];
     }
 
     OnUpdate() {}
@@ -35,6 +37,12 @@ module.exports = class LobbyBase {
         if (index > -1) {
             lobby.connections.splice(index, 1);
         }
+    }
+    OnMessageReceived(message = Message) {
+        this.messages.push(message);
+        this.connections.forEach(c => {
+            c.socket.emit('messageReceived', message);
+        });
     }
     GetMatchTime() {
         return Math.round((new Date() - this.startTime) * 0.001);

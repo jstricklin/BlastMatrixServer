@@ -1,6 +1,7 @@
 const Connection = require('./Connection');
 const Player = require('./Player');
 const LobbyState = require('./Utility/LobbyState');
+const Message = require('./Message');
 
 // lobbies
 const LobbyBase = require('./Abstract/LobbyBase');
@@ -11,6 +12,7 @@ module.exports = class Server {
     constructor() {
         this.connections = [];
         this.lobbies = [];
+        this.messages = [];
 
         this.lobbies[0] = new LobbyBase(0);
     }
@@ -135,4 +137,40 @@ module.exports = class Server {
         lobbies[lobbyId].OnEnterLobby(connection);
     }
 
+    OnMessageReceived(connection = Connection, data) {
+        let server = this;
+        let lobbies = server.lobbies;
+        let message = new Message(connection.player, data);
+        this.messages.push(message);
+
+        lobbies[connection.player.lobby].OnMessageReceived(message);
+    }
+
+    BroadcastServerMessage(data) {
+        let server = this;
+        let lobbies = server.lobbies;
+        let serv = new Player();
+        serv.username = "server";
+        let message = new Message(serv, data);
+        message.serverMessage = true;
+
+        this.messages.push(message);
+
+        lobbies.forEach(lobby => {
+            lobby.OnMessageReceived(message)
+        });
+
+    }
+
+    BroadcastToLobbies(connection = Connection, data) {
+        let server = this;
+        let lobbies = server.lobbies;
+        let message = new Message(connection.player, data);
+
+        this.messages.push(message);
+
+        lobbies.forEach(lobby => {
+            lobby.OnMessageReceived(message)
+        });
+    }
 }

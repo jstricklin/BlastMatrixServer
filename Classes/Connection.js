@@ -6,6 +6,7 @@ module.exports = class Connection {
         this.player;
         this.server;
         this.lobby;
+        this.messages = [];
     }
     //handles all our io events and where we should route them to be handled
     CreateEvents() {
@@ -16,6 +17,21 @@ module.exports = class Connection {
 
         socket.on('registerUsername', (data) => {
             server.OnRegisterUsername(connection, data);
+        });
+        socket.on('sendMessage', (data) => {
+            let message = data.message;
+            this.messages.push(message);
+            // check commands here
+            console.log("message received: " + message);
+            let servTest = new RegExp('bserv ')
+            let lobbTest = new RegExp('blobby ')
+            if (servTest.test(message)) {
+                server.BroadcastServerMessage(message.replace('bserv ', ''));
+            } else if (lobbTest.test(message)) {
+                server.BroadcastLobbyMessage(message.replace('blobby ', ''));
+            } else {
+                server.OnMessageReceived(connection, message);
+            }
         });
         socket.on('queryLobbies', () => {
             let lobbies = {};
@@ -41,7 +57,7 @@ module.exports = class Connection {
             server.OnSwitchLobby(connection, data.lobbyId);
         });
         socket.on('exitGame', () => {
-            connection.socket.emit("exitGame", {});
+            // connection.socket.emit("exitGame", {});
             let id = connection.player.id;
             // connection.socket.broadcast.to(connection.player.lobby).emit('disconnected', {
             //     id: id,
