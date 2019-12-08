@@ -25,8 +25,11 @@ module.exports = class Server {
             server.lobbies[id].OnUpdate();
             if (server.lobbies[id].connections.length < 1 && server.lobbies[id] != server.lobbies[0] && server.lobbies[id].GetMatchTime() > 5)
             {
-                delete server.lobbies[id];
-                server.lobbies.splice(id, 1);
+
+                // delete server.lobbies[id];
+
+                
+                // server.lobbies.splice(id, 1);
             }
         }
     }
