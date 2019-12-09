@@ -1,6 +1,8 @@
 const port = process.env.PORT || 5280;
 const express = require('express');
 const app = express();
+const morgan = require('morgan')
+const cors = require('cors');
 const serv = require('http').createServer(app);
 const io = require('socket.io')(serv);
 const Player = require('./Classes/Player');
@@ -11,6 +13,8 @@ const routes = require('./routes')
 
 serv.listen(port);
 
+app.use(cors());
+app.use(morgan('combined'));
 app.use('/', routes);
 
 app.use((req, res, next) => {

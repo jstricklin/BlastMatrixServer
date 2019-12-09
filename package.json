@@ -10,7 +10,9 @@
   "author": "Jose Stricklin",
   "license": "ISC",
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.17.1",
+    "morgan": "^1.9.1",
     "shortid": "^2.2.15",
     "socket.io": "^2.3.0"
   }
