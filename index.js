@@ -1,9 +1,29 @@
 const port = process.env.PORT || 5280;
-const io = require('socket.io')(port);
+const express = require('express');
+const app = express();
+const serv = require('http').createServer(app);
+const io = require('socket.io')(serv);
 const Player = require('./Classes/Player');
 const Vector3 = require('./Classes/Vector3');
 const Projectile = require('./Classes/Projectile');
 const Server = require('./Classes/Server')
+const routes = require('./routes')
+
+serv.listen(port);
+
+app.use('/', routes);
+
+app.use((req, res, next) => {
+    let err = new Error('Hmmm... You really shouldn\'t be here...');
+    err.status = 404
+    next(err)
+})
+
+app.use((err, req, res, next) => {
+    res.status(err.status || 500).json({
+        error: err.message
+    })
+})
 
 console.log('BlastMatrix party has begun.');
 
