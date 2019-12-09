@@ -16,6 +16,7 @@ module.exports = class GameLobby extends LobbyBase {
         this.Damage = new Damage();
         this.timeRemaining = new Number(0);
         this.lastMatchEnd = new Date();
+        this.spawnPoints = []
 
         this.LobbyState.currentState = this.LobbyState.GAME;
     }
