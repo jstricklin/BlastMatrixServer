@@ -13,7 +13,6 @@ module.exports = class Server {
         this.connections = [];
         this.lobbies = [];
         this.messages = [];
-
         this.lobbies[0] = new LobbyBase(0);
     }
 
@@ -94,6 +93,7 @@ module.exports = class Server {
         if (!lobbyFound) {
             console.log('making new game lobby');
             let gameLobby = new GameLobby(gameLobbies.length + 1, new GameLobbySettings(`GameLobby ${gameLobbies.length + 1}`, 'FFA', 6));
+            gameLobby.SetHost(connection);
             server.lobbies.push(gameLobby);
             console.log("made lobby " + gameLobby.id);
             server.OnSwitchLobby(connection, gameLobby.id);
@@ -107,6 +107,7 @@ module.exports = class Server {
         });
         console.log('making new game lobby');
         let gameLobby = new GameLobby(gameLobbies.length + 1, new GameLobbySettings(settings.name, 'FFA', 6));
+        gameLobby.SetHost(connection);
         server.lobbies.push(gameLobby);
         console.log("made lobby " + gameLobby.id);
         server.OnSwitchLobby(connection, gameLobby.id);

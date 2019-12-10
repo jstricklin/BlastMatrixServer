@@ -64,6 +64,10 @@ module.exports = class Connection {
             // });
             server.OnSwitchLobby(connection, 0);
         });
+        socket.on('updateSpawnPoints', (data) => {
+            console.log('spawnpoints! ' + data.spawnPoints);
+            connection.lobby.SetSpawnPoints(data);
+        });
         socket.on('fireProjectile', (data) => {
             connection.lobby.OnFireProjectile(connection, data);
         });
