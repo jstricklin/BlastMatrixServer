@@ -4,7 +4,9 @@ const Connection = require('../Connection');
 const Projectile = require('../Projectile');
 const LobbyState = require('../Utility/LobbyState');
 const Vector3 = require('../Vector3');
+const Rotation = require('../Rotation');
 const Damage = require('../Utility/Damage');
+const SpawnPoint = require('../SpawnPoint');
 
 module.exports = class GameLobby extends LobbyBase {
 
@@ -118,14 +120,21 @@ module.exports = class GameLobby extends LobbyBase {
                 let isRespawn = player.RespawnCounter();
                 if (isRespawn) {
                     let socket = connection.socket;
-                    let respawnPoint = GetSpawnPoint();
-                    player.position = respawnPoint;
+                    let pos = this.GetSpawnPoint();
+                    player.position = pos.position;
+                    player.rotation = pos.rotation;
                     let returnData = {
                         id: player.id,
                         position: {
                             x: player.position.x,
                             y: player.position.y,
                             z: player.position.z,
+                        },
+                        rotation: {
+                            x: player.rotation.x,
+                            y: player.rotation.y,
+                            z: player.rotation.z,
+                            w: player.rotation.w,
                         }
                     }
                     socket.emit('playerRespawn', returnData);
@@ -137,18 +146,30 @@ module.exports = class GameLobby extends LobbyBase {
 
     SetSpawnPoints(data)
     {
-        console.log(data);
-        data.spawnPoints.map(point => {
+        // console.log("spawnPoints... " + data.spawnPoints);
+        data.spawnPoints.map((point, i) => {
+            console.log("point data " + point);
             let newPos = new Vector3(point.x, point.y, point.z);
-            console.log("new spawnpoint " + newPos);
-            this.spawnPoints.push(point);
+            let newRot = new Rotation(data.spawnRotations[i].rotation.x, data.spawnRotations[i].rotation.y, data.spawnRotations[i].rotation.z, data.spawnRotations[i].rotation.w);
+            // console.log("new spawnpoint " + newPos);
+            let newSpawn = new SpawnPoint();
+            newSpawn.position = newPos;
+            newSpawn.rotation = newRot;
+            this.spawnPoints.push(newSpawn);
         });
     }
 
     OnLevelLoaded(connection = Connection)
     {
         let lobby = this;
-        lobby.AddPlayer(connection);
+        if (this.LobbyState != LobbyState.ENDGAME) {
+            lobby.AddPlayer(connection);
+        }  else {
+            connection.socket.emit('endGame', {
+                matchResults: resultString,
+                countdownTime: 10,
+            })
+        }
     }
     
     GetSpawnPoint()
@@ -298,7 +319,10 @@ module.exports = class GameLobby extends LobbyBase {
         let socket = connection.socket;
         let player = connection.player;
 
-        player.position = this.GetSpawnPoint();
+        let pos = this.GetSpawnPoint();
+
+        player.position = pos.position;
+        player.rotation = pos.rotation;
         // let returnData = {
         //     id: connection.player.id,
         // }
@@ -400,8 +424,10 @@ module.exports = class GameLobby extends LobbyBase {
         let lobby = this;
         this.connections.forEach(c => {
             let player = c.player;
+            let pos = this.GetSpawnPoint();
             c.socket.emit('loadGame', c.player.name);
-            player.position = GetSpawnPoint();
+            player.position = pos.position;
+            player.rotation = pos.rotation;
             player.score = 0;
             console.log('spawning player...');
             c.socket.emit('spawn', c.player); // tell myself it has spawned
