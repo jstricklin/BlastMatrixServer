@@ -64,7 +64,6 @@ module.exports = class GameLobby extends LobbyBase {
 
         super.OnEnterLobby(connection);
         socket.emit('loadGame', connection.player.name);
-        lobby.AddPlayer(connection);
         //handle spawning any server spawned objects here
         //example: loot, or flying bullets, etc
 
@@ -136,13 +135,20 @@ module.exports = class GameLobby extends LobbyBase {
         });
     }
 
-    SetSpawnPoints(SpawnPoints)
+    SetSpawnPoints(data)
     {
-        SpawnPoints.spawnPoints.forEach(point => {
-            let newPos = new Vector3(point.x, point,y, point.z);
+        console.log(data);
+        data.spawnPoints.map(point => {
+            let newPos = new Vector3(point.x, point.y, point.z);
             console.log("new spawnpoint " + newPos);
             this.spawnPoints.push(point);
         });
+    }
+
+    OnLevelLoaded(connection = Connection)
+    {
+        let lobby = this;
+        lobby.AddPlayer(connection);
     }
     
     GetSpawnPoint()
@@ -384,13 +390,9 @@ module.exports = class GameLobby extends LobbyBase {
     }
 
     SetHost(connection = Connection) {
-        console.log("setting host... " + connection);
+        console.log("setting host... " + connection + " lobby: " + this.id);
         this.host = connection;
         connection.socket.emit("setHost", { });
-    }
-
-    SetSpawnPoints(spawnPoints) {
-        this.spawnPoints = spawnPoints;
     }
 
     ResetGame() {

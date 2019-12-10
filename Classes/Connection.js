@@ -33,6 +33,9 @@ module.exports = class Connection {
                 server.OnMessageReceived(connection, message);
             }
         });
+        socket.on("levelLoaded", () => {
+            connection.lobby.OnLevelLoaded(connection);
+        })
         socket.on('queryLobbies', () => {
             let lobbies = {};
             server.lobbies.map(lobby => {
@@ -65,7 +68,8 @@ module.exports = class Connection {
             server.OnSwitchLobby(connection, 0);
         });
         socket.on('updateSpawnPoints', (data) => {
-            console.log('spawnpoints! ' + data.spawnPoints);
+            // console.log("spawn points... " + data);
+            // console.log("spawn connetion data... " + connection.lobby.id);
             connection.lobby.SetSpawnPoints(data);
         });
         socket.on('fireProjectile', (data) => {
