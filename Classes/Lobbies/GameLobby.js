@@ -361,12 +361,12 @@ module.exports = class GameLobby extends LobbyBase {
             });
             lobby.connections.forEach(c => {
 
-                c.socket.emit("serverDespawn", {
-                    id: c.player.id
-                });
-                c.socket.broadcast.to(lobby.id).emit("serverDespawn", {
-                    id: c.player.id
-                });
+                // c.socket.emit("serverDespawn", {
+                //     id: c.player.id
+                // });
+                // c.socket.broadcast.to(lobby.id).emit("serverDespawn", {
+                //     id: c.player.id
+                // });
 
                 c.socket.emit('endGame', {
                     matchResults: resultString,
