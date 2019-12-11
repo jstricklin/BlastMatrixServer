@@ -430,8 +430,8 @@ module.exports = class GameLobby extends LobbyBase {
             player.rotation = pos.rotation;
             player.score = 0;
             // console.log('spawning player...');
-            c.socket.emit('spawn', c.player); // tell myself it has spawned
-            c.socket.broadcast.to(lobby.id).emit('spawn', c.player); // tell other sockets of new spawn
+            // c.socket.emit('spawn', c.player); // tell myself it has spawned
+            // c.socket.broadcast.to(lobby.id).emit('spawn', c.player); // tell other sockets of new spawn
 
         });
         this.startTime = new Date();
