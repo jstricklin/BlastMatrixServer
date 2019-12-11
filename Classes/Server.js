@@ -26,7 +26,6 @@ module.exports = class Server {
             {
 
                 // delete server.lobbies[id];
-
                 
                 // server.lobbies.splice(id, 1);
             }
@@ -91,10 +90,10 @@ module.exports = class Server {
         });
         // all lobbies are full or we have not create one yet --- encapsulate below
         if (!lobbyFound) {
-            console.log('making new game lobby');
+            // console.log('making new game lobby');
             let gameLobby = new GameLobby(gameLobbies.length + 1, new GameLobbySettings(`GameLobby ${gameLobbies.length + 1}`, 'FFA', 6));
             server.lobbies.push(gameLobby);
-            console.log("made lobby " + gameLobby.id);
+            // console.log("made lobby " + gameLobby.id);
             server.OnSwitchLobby(connection, gameLobby.id);
             gameLobby.SetHost(connection);
         }
@@ -105,7 +104,7 @@ module.exports = class Server {
         let gameLobbies = server.lobbies.filter(lobby => {
             return lobby instanceof GameLobby;
         });
-        console.log('making new game lobby');
+        // console.log('making new game lobby');
         let gameLobby = new GameLobby(gameLobbies.length + 1, new GameLobbySettings(settings.name, 'FFA', 6));
         server.lobbies.push(gameLobby);
         console.log("made lobby " + gameLobby.id);
@@ -132,11 +131,10 @@ module.exports = class Server {
         let server = this;
         let lobbies = server.lobbies;
 
-
+        lobbies[connection.player.lobby].OnLeaveLobby(connection);
         connection.socket.join(lobbyId); // join new lobby's socket channel
         connection.lobby = lobbies[lobbyId]; // assign ref to new lobby
 
-        lobbies[connection.player.lobby].OnLeaveLobby(connection);
         console.log(lobbies[lobbyId] + " lobby ID " + lobbyId);
         lobbies[lobbyId].OnEnterLobby(connection);
     }

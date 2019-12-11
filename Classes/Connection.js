@@ -55,13 +55,13 @@ module.exports = class Connection {
             server.OnCreateLobby(connection, data);
         });
         socket.on('joinGame', (data) => {
-            console.log("attempting join game...");
-            console.log("join game: " + data.lobbyId);
+            // console.log("attempting join game...");
+            // console.log("join game: " + data.lobbyId);
             server.OnSwitchLobby(connection, data.lobbyId);
         });
         socket.on('exitGame', () => {
             // connection.socket.emit("exitGame", {});
-            let id = connection.player.id;
+            // let id = connection.player.id;
             // connection.socket.broadcast.to(connection.player.lobby).emit('disconnected', {
             //     id: id,
             // });
@@ -73,6 +73,7 @@ module.exports = class Connection {
             connection.lobby.SetSpawnPoints(data);
         });
         socket.on('fireProjectile', (data) => {
+            // console.log('projectile fired from... ' + connection.lobby.id);
             connection.lobby.OnFireProjectile(connection, data);
         });
         socket.on('collisionDestroy', (data) => {
@@ -85,7 +86,9 @@ module.exports = class Connection {
 
             socket.broadcast.to(connection.lobby.id).emit('updatePosition', player);
         });
+        
         socket.on('updateRotation', (data) => {
+            
             player.weaponRotation = data.rotation.weaponRotation;
             player.barrelRotation = data.rotation.barrelRotation;
             player.rotation = data.rotation.rotation;
