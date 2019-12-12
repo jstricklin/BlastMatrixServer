@@ -8,6 +8,8 @@ const LobbyBase = require('./Abstract/LobbyBase');
 const GameLobby = require('./Lobbies/GameLobby');
 const GameLobbySettings = require('./Lobbies/GameLobbySettings');
 
+const shortid = require('shortid');
+
 module.exports = class Server {
     constructor() {
         this.connections = [];
@@ -20,16 +22,32 @@ module.exports = class Server {
     OnUpdate() {
         let server = this;
         // update each lobby
-        for (let id in server.lobbies) {
-            server.lobbies[id].OnUpdate();
-            if (server.lobbies[id].connections.length < 1 && server.lobbies[id] != server.lobbies[0] && server.lobbies[id].GetMatchTime() > 5)
-            {
+        server.lobbies.map(lobby => {
+            lobby.OnUpdate();
+            if (lobby.connections.length < 1 && lobby != server.lobbies[0] && lobby.GetMatchTime() > 5) {
 
-                // delete server.lobbies[id];
-                
-                // server.lobbies.splice(id, 1);
+            console.log("empty lobby... " + lobby.id);
+
+            var index = server.lobbies.indexOf(lobby);
+            if (index > -1) {
+                server.lobbies.splice(index, 1);
             }
-        }
+
+                // delete server.lobbies.filter(l => {
+                //     return l.id == lobby.id;
+                // })[0];
+            }
+        });
+        // for (let id in server.lobbies) {
+        //     server.lobbies[id].OnUpdate();
+        //     if (server.lobbies[id].connections.length < 1 && server.lobbies[id] != server.lobbies[0] && server.lobbies[id].GetMatchTime() > 5)
+        //     {
+
+        //         // delete server.lobbies[id];
+                
+        //         // server.lobbies.splice(id, 1);
+        //     }
+        // }
     }
 
     // handle connection from server
@@ -64,7 +82,12 @@ module.exports = class Server {
             id: id,
         });
         // cleanup lobby
-        server.lobbies[connection.player.lobby].OnLeaveLobby(connection);
+        // server.lobbies[connection.player.lobby].OnLeaveLobby(connection);
+        server.lobbies.filter(lobby => {
+            lobby.id == connection.player.lobby;
+        })[0].OnLeaveLobby(connection);
+
+
     }
 
     OnAttemptToJoinGame(connection = Connection) {
@@ -91,7 +114,7 @@ module.exports = class Server {
         // all lobbies are full or we have not create one yet --- encapsulate below
         if (!lobbyFound) {
             // console.log('making new game lobby');
-            let gameLobby = new GameLobby(gameLobbies.length + 1, new GameLobbySettings(`GameLobby ${gameLobbies.length + 1}`, 'FFA', 6));
+            let gameLobby = new GameLobby(shortid.generate(), new GameLobbySettings(`GameLobby ${gameLobbies.length + 1}`, 'FFA', 6));
             server.lobbies.push(gameLobby);
             // console.log("made lobby " + gameLobby.id);
             server.OnSwitchLobby(connection, gameLobby.id);
@@ -105,7 +128,7 @@ module.exports = class Server {
             return lobby instanceof GameLobby;
         });
         // console.log('making new game lobby');
-        let gameLobby = new GameLobby(gameLobbies.length + 1, new GameLobbySettings(settings.name, 'FFA', 6));
+        let gameLobby = new GameLobby(shortid.generate(), new GameLobbySettings(settings.name, 'FFA', 6));
         server.lobbies.push(gameLobby);
         console.log("made lobby " + gameLobby.id);
         server.OnSwitchLobby(connection, gameLobby.id);
@@ -131,12 +154,19 @@ module.exports = class Server {
         let server = this;
         let lobbies = server.lobbies;
 
-        lobbies[connection.player.lobby].OnLeaveLobby(connection);
+        lobbies.filter(lobby => {
+            return lobby.id == connection.player.lobby;
+        })[0].OnLeaveLobby(connection);
+        // lobbies[connection.player.lobby].OnLeaveLobby(connection);
+
         connection.socket.join(lobbyId); // join new lobby's socket channel
         connection.lobby = lobbies[lobbyId]; // assign ref to new lobby
 
         console.log(lobbies[lobbyId] + " lobby ID " + lobbyId);
-        lobbies[lobbyId].OnEnterLobby(connection);
+        lobbies.filter(lobby => {
+            return lobby.id == lobbyId;
+        })[0].OnEnterLobby(connection);
+        // lobbies[lobbyId].OnEnterLobby(connection);
     }
 
     OnMessageReceived(connection = Connection, data) {
@@ -145,7 +175,10 @@ module.exports = class Server {
         let message = new Message(connection.player, data);
         this.messages.push(message);
 
-        lobbies[connection.player.lobby].OnMessageReceived(message);
+        lobbies.filter(lobby => {
+            return lobby.id == connection.player.lobby;
+        })[0].OnMessageReceived(message);
+        // lobbies[connection.player.lobby].OnMessageReceived(message);
     }
 
     BroadcastServerMessage(data) {
