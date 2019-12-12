@@ -84,7 +84,7 @@ module.exports = class Server {
         // cleanup lobby
         // server.lobbies[connection.player.lobby].OnLeaveLobby(connection);
         server.lobbies.filter(lobby => {
-            lobby.id == connection.player.lobby;
+            return lobby.id == connection.player.lobby;
         })[0].OnLeaveLobby(connection);
 
 
