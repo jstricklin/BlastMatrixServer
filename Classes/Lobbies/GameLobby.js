@@ -232,6 +232,20 @@ module.exports = class GameLobby extends LobbyBase {
         }
     }
 
+    GenerateGameBots() {
+        for (let i = 0; i < this.settings.maxPlayers; i++) {
+            // let newBot = new Bot();
+            // this.bots.push(new Bot());
+            this.SpawnBot()
+        }
+    }
+    SpawnBot(newBot = new Bot()) {
+        this.bots.push(new Bot());
+        socket.emit('spawn', player); // tell myself it has spawned
+        socket.broadcast.to(lobby.id).emit('spawn', player); // tell other sockets of new spawn
+
+    }
+
     OnUpdateProjectile(connection = Connection, data)
     {
         let lobby = this;

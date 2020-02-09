@@ -70,10 +70,10 @@ module.exports = class Server {
         socket.join(player.lobby);
         connection.lobby = lobbies[player.lobby];
         connection.lobby.OnEnterLobby(connection);
-        let i = 100;
-        while (i--) {
-            console.log(name.GenerateName());
-        }
+        // let i = 100;
+        // while (i--) {
+        //     console.log(name.GenerateName());
+        // }
         return connection;
     }
 
