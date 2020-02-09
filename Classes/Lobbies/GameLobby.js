@@ -7,6 +7,7 @@ const Vector3 = require('../Vector3');
 const Rotation = require('../Rotation');
 const Damage = require('../Utility/Damage');
 const SpawnPoint = require('../SpawnPoint');
+const Bot = require('../Bot');
 
 module.exports = class GameLobby extends LobbyBase {
 
@@ -18,9 +19,9 @@ module.exports = class GameLobby extends LobbyBase {
         this.Damage = new Damage();
         this.timeRemaining = new Number(0);
         this.lastMatchEnd = new Date();
-        this.spawnPoints = []
+        this.spawnPoints = [];
         this.host;
-
+        this.bots = [];
         this.LobbyState.currentState = this.LobbyState.GAME;
     }
     OnUpdate() {

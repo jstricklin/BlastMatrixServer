@@ -10,6 +10,9 @@ const GameLobbySettings = require('./Lobbies/GameLobbySettings');
 
 const shortid = require('shortid');
 
+const NameGenerator = require('./Utility/NameGenerator');
+const name = new NameGenerator();
+
 module.exports = class Server {
     constructor() {
         this.connections = [];
@@ -23,7 +26,7 @@ module.exports = class Server {
         let server = this;
         // update each lobby
         server.lobbies.map(lobby => {
-            lobby.OnUpdate();
+            lobby.OnUpdate()
             if (lobby.connections.length < 1 && lobby != server.lobbies[0] && lobby.GetMatchTime() > 5) {
 
             console.log("empty lobby... " + lobby.id);
@@ -67,6 +70,10 @@ module.exports = class Server {
         socket.join(player.lobby);
         connection.lobby = lobbies[player.lobby];
         connection.lobby.OnEnterLobby(connection);
+        let i = 100;
+        while (i--) {
+            console.log(name.GenerateName());
+        }
         return connection;
     }
 
@@ -184,7 +191,7 @@ module.exports = class Server {
     BroadcastServerMessage(data) {
         let server = this;
         let lobbies = server.lobbies;
-        let serv = new Player();
+        let serv = new Player('server');
         serv.username = "server";
         let message = new Message(serv, data);
         message.serverMessage = true;

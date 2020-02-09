@@ -3,8 +3,8 @@ const Vector3 = require('./Vector3')
 const Rotation = require('./Rotation');
 
 module.exports = class Player {
-    constructor() {
-        this.username = 'Default_Player';
+    constructor(name = 'Default_Player') {
+        this.username = name;
         this.id = shortId.generate();
         this.lobby = 0;
         this.position = new Vector3();
