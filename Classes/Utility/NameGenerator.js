@@ -16,7 +16,17 @@ module.exports = class NameGenerator {
             "Tragic",
             "Strong",
             "Punk",
-            "Metal"
+            "Metal",
+            "Cosmic",
+            "Swole",
+            "Super",
+            "Bold",
+            "Wrecked",
+            "Frenzied",
+            "Amazing",
+            "Awesome",
+            "Shocking",
+            "Frozen"
         ];
         this.femNounList = [
             "Queen",
@@ -28,7 +38,11 @@ module.exports = class NameGenerator {
             "Bat",
             "Cat",
             "Girl",
-            "Lady"
+            "Lady",
+            "Panther",
+            "Moon",
+            "Pepper",
+            "Lotus"
         ];
         this.mascNounList = [
             "Horse",
@@ -50,7 +64,14 @@ module.exports = class NameGenerator {
             "Pharaoh",
             "Dope",
             "Bat",
-            "Man"
+            "Man",
+            "Smoke",
+            "Crash",
+            "Wreck",
+            "Train",
+            "Ghost",
+            "Shock",
+            "Cold",
         ];
         this.mascNameList = [
             "Bob",
@@ -58,7 +79,11 @@ module.exports = class NameGenerator {
             "Steve",
             "Joe",
             "Chris",
-            "Ted"
+            "Ted",
+            "Jim",
+            "Vinnie",
+            "Chet",
+            "Will",
         ];
         this.femNameList = [
             "Sally",
@@ -67,7 +92,12 @@ module.exports = class NameGenerator {
             "Bertha",
             "Sammie",
             "Sunni",
-            "Jane"
+            "Jane",
+            "Lisa",
+            "Jen",
+            "Mel",
+            "Nelly",
+            "Jo"
         ];
     }
     GenerateName() {
@@ -77,7 +107,7 @@ module.exports = class NameGenerator {
         // Generate base name
         if (femName) {
             if (useName) {
-                if (Math.floor((Math.random() * 10) + 1) > 5) {
+                if (Math.floor((Math.random() * 10) + 1) > 7) {
                     name = `${this.femNameList[Math.floor(Math.random() * this.femNameList.length)]}${this.Preposition()}${this.femNounList[Math.floor(Math.random() * this.femNounList.length)]}`;
                 } else if (Math.floor((Math.random() * 10) + 1) > 5) {
                     name = `${this.femNounList[Math.floor(Math.random() * this.femNounList.length)]}${this.femNameList[Math.floor(Math.random() * this.femNameList.length)]}`;
@@ -85,17 +115,17 @@ module.exports = class NameGenerator {
                     name = `${this.adjectiveList[Math.floor(Math.random() * this.adjectiveList.length)]}${this.femNameList[Math.floor(Math.random() * this.femNameList.length)]}`;
                 }
             } else {
-                if (Math.floor((Math.random() * 10) + 1) > 5) {
-                    name = `${this.adjectiveList[Math.floor(Math.random() * this.adjectiveList.length)]}${this.femNounList[Math.floor(Math.random() * this.femNounList.length)]}`;
+                if (Math.floor((Math.random() * 10) + 1) > 7) {
+                    name = `${this.Preposition()}${this.adjectiveList[Math.floor(Math.random() * this.adjectiveList.length)]}${this.femNounList[Math.floor(Math.random() * this.femNounList.length)]}`;
                 } else if (Math.floor((Math.random() * 10) + 1) > 5) {
                     name = `${this.femNounList[Math.floor(Math.random() * this.femNounList.length)]}${this.Preposition()}${this.adjectiveList[Math.floor(Math.random() * this.adjectiveList.length)]}`;
                 } else {
-                    name = `${this.Preposition()}${this.adjectiveList[Math.floor(Math.random() * this.adjectiveList.length)]}${this.femNounList[Math.floor(Math.random() * this.femNounList.length)]}`;
+                    name = `${this.adjectiveList[Math.floor(Math.random() * this.adjectiveList.length)]}${this.femNounList[Math.floor(Math.random() * this.femNounList.length)]}`;
                 }
             }
         } else {
             if (useName) {
-                if (Math.floor((Math.random() * 10) + 1) > 5) {
+                if (Math.floor((Math.random() * 10) + 1) > 7) {
                     name = `${this.mascNameList[Math.floor(Math.random() * this.mascNameList.length)]}${this.Preposition()}${this.mascNounList[Math.floor(Math.random() * this.mascNounList.length)]}`;
                 } else if (Math.floor((Math.random() * 10) + 1) > 5) {
                     name = `${this.mascNounList[Math.floor(Math.random() * this.mascNounList.length)]}${this.mascNameList[Math.floor(Math.random() * this.mascNameList.length)]}`;
@@ -103,17 +133,17 @@ module.exports = class NameGenerator {
                     name = `${this.adjectiveList[Math.floor(Math.random() * this.adjectiveList.length)]}${this.mascNameList[Math.floor(Math.random() * this.mascNameList.length)]}`;
                 }
             } else {
-                if (Math.floor((Math.random() * 10) + 1) > 5) {
-                    name = `${this.adjectiveList[Math.floor(Math.random() * this.adjectiveList.length)]}${this.mascNounList[Math.floor(Math.random() * this.mascNounList.length)]}`;
+                if (Math.floor((Math.random() * 10) + 1) > 7) {
+                    name = `${this.Preposition()}${this.adjectiveList[Math.floor(Math.random() * this.adjectiveList.length)]}${this.mascNounList[Math.floor(Math.random() * this.mascNounList.length)]}`;
                 } else if (Math.floor((Math.random() * 10) + 1) > 5) {
                     name = `${this.mascNounList[Math.floor(Math.random() * this.mascNounList.length)]}${this.Preposition()}${this.adjectiveList[Math.floor(Math.random() * this.adjectiveList.length)]}`;
                 } else {
-                    name = `${this.Preposition()}${this.adjectiveList[Math.floor(Math.random() * this.adjectiveList.length)]}${this.mascNounList[Math.floor(Math.random() * this.mascNounList.length)]}`;
+                    name = `${this.adjectiveList[Math.floor(Math.random() * this.adjectiveList.length)]}${this.mascNounList[Math.floor(Math.random() * this.mascNounList.length)]}`;
                 }
             }
         }
         // Leetify
-        if (Math.floor((Math.random() * 10) + 1) > 7) {
+        if (Math.floor((Math.random() * 10) + 1) > 8) {
             name = this.Leetify(name);
         }
         // Decorate
@@ -131,23 +161,33 @@ module.exports = class NameGenerator {
         let leetName = ""
         toLeet.split("").forEach(letter => {
             switch(letter) {
-                case ["a", "A"] : leetName += "4";
+                case "a" : case "A" : 
+                    leetName += "4";
                     break;
-                case ["o", "O"] : leetName += "0";
+                case "o" : case "O" : 
+                    leetName += "0";
                     break;
-                case ["e", "E"] : leetName += "3";
+                case "e" : case "E" : 
+                    leetName += "3";
                     break;
-                case ["g", "G"] : leetName += "6";
+                case "g" : case "G" : 
+                    leetName += "6";
                     break;
-                case ["l", "i", "I"] : leetName += "1";
+                case "l" : case "i" : case "I" : 
+                    leetName += "1";
                     break;
-                case ["L", "T"] : leetName += "7";
+                case "L" : case "T" : 
+                    leetName += "7";
                     break;
-                case ["p", "P"] : leetName += "9";
+                case "p" : case "P" : 
+                    leetName += "9";
                     break;
-                case ["s", "S"] : leetName += "5";
+                case "s" : case "S" : 
+                    leetName += "5";
                     break;
-                default : leetName += letter;
+                default : 
+                    leetName += letter;
+                    break;
             }
         })
         return leetName;

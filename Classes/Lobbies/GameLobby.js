@@ -166,6 +166,8 @@ module.exports = class GameLobby extends LobbyBase {
         let lobby = this;
         if (this.LobbyState != LobbyState.ENDGAME) {
             lobby.AddPlayer(connection);
+            if (connection == lobby.host)
+                lobby.InitializeGameBots();
         }  else {
             connection.socket.emit('endGame', {
                 matchResults: resultString,
@@ -176,7 +178,28 @@ module.exports = class GameLobby extends LobbyBase {
     
     GetSpawnPoint()
     {
-        return this.spawnPoints[Math.floor(Math.random() * this.spawnPoints.length)];
+        let lobby = this;
+        let point = lobby.spawnPoints[Math.floor(Math.random() * lobby.spawnPoints.length)]
+        let toCheck = lobby.GetActivePlayers();
+        toCheck.forEach(player => {
+            if (player.position.Distance(point) < 5) {
+                lobby.GetSpawnPoint();
+                return;
+            }
+        });
+        // this.connections.forEach(c => {
+        //     if (c.player.position.Distance(point) < 5) {
+        //         this.GetSpawnPoint();
+        //         return;
+        //     }
+        // });
+        // this.bots.forEach(bot => {
+        //     if (bot.position.Distance(point) < 5) {
+        //         this.GetSpawnPoint();
+        //         return;
+        //     }
+        // });
+        return point;
     }
 
     OnFireProjectile(connection = Connection, data) {
@@ -232,17 +255,50 @@ module.exports = class GameLobby extends LobbyBase {
         }
     }
 
-    GenerateGameBots() {
+    InitializeGameBots() {
+        // minus one to account for standard update bot behavior
         for (let i = 0; i < this.settings.maxPlayers; i++) {
             // let newBot = new Bot();
             // this.bots.push(new Bot());
-            this.SpawnBot()
+            this.AddBot()
         }
     }
-    SpawnBot(newBot = new Bot()) {
-        this.bots.push(new Bot());
-        socket.emit('spawn', player); // tell myself it has spawned
-        socket.broadcast.to(lobby.id).emit('spawn', player); // tell other sockets of new spawn
+
+    UpdateBots() {
+        let lobby = this;
+        if (this.currentPlayerCount + this.bots.length > this.maxPlayers)
+        {
+            this.RemoveBot();
+        } else {
+            this.AddBot();
+        }
+    }
+
+    AddBot(newBot = new Bot()) {
+        let lobby = this;
+        let pos = lobby.GetSpawnPoint();
+        newBot.position = pos.position;
+        newBot.rotation = pos.rotation;
+
+        this.bots.push(newBot);
+        console.log("adding bot: " + newBot.username);
+        lobby.connections.forEach(c => {
+            c.socket.emit("spawnBot", newBot);
+        });
+    }
+
+    RemoveBot(index = null)
+    {
+        if (index == null) {
+            index = Math.floor(Math.random() * this.bots.length);
+        }
+        let toDespawn = bots.splice(index, 1);
+        console.log("removing bot: " + toDespawn.username);
+        lobby.connections.forEach(c => {
+            c.socket.emit("despawnBot", {
+                id: toDespawn.id
+            });
+        });
 
     }
 
@@ -346,6 +402,7 @@ module.exports = class GameLobby extends LobbyBase {
         socket.emit('spawn', player); // tell myself it has spawned
         socket.broadcast.to(lobby.id).emit('spawn', player); // tell other sockets of new spawn
 
+        this.UpdateBots();
         // tell myself about everyone else in the game
         // connections.forEach(c => {
         //     if (c.player.id != connection.player.id) {
@@ -359,6 +416,7 @@ module.exports = class GameLobby extends LobbyBase {
         connection.socket.broadcast.to(lobby.id).emit('disconnected', {
             id: connection.player.id,
         });
+        this.UpdateBots();
     }
 
     UpdateGameState() {
@@ -367,12 +425,13 @@ module.exports = class GameLobby extends LobbyBase {
             // console.log("endGame - total players: " + lobby.connections.length);
             this.LobbyState.currentState = this.LobbyState.ENDGAME;
             this.lastMatchEnd = new Date();
-            let resultsArr = this.connections.sort((a, b) => {
-                return b.player.score - a.player.score;
+            
+            let resultsArr = this.GetActivePlayers().sort((a, b) => {
+                return b.score - a.score;
             });
             let resultString = "";
             resultsArr.map((res, i) => {
-                resultString += `${i+1}   ${res.player.username}    ${res.player.score}\n`
+                resultString += `${i+1}   ${res.username}    ${res.score}\n`
             });
             lobby.connections.forEach(c => {
 
@@ -389,6 +448,15 @@ module.exports = class GameLobby extends LobbyBase {
                 })
             });
         }
+    }
+
+    GetActivePlayers()
+    {
+        let playerArr = [];
+        this.connections.forEach(c => {
+            playerArr.push(c.player);
+        });
+        return playerArr.concat(this.bots);
     }
 
     UpdateNextMatchTime() {
@@ -413,12 +481,12 @@ module.exports = class GameLobby extends LobbyBase {
     }
 
     UpdateMatchScores() {
-        let resultsArr = this.connections.sort((a, b) => {
-            return b.player.score - a.player.score;
+        let resultsArr = this.GetActivePlayers().sort((a, b) => {
+            return b.score - a.score;
         });
         let resultString = "";
         resultsArr.map((res, i) => {
-            resultString += `${i+1}   ${res.player.username}    ${res.player.score}\n`
+            resultString += `${i+1}   ${res.username}    ${res.score}\n`
         });
         // console.log(`lobbyId: ${this.id} upTime: ${upTime} timeLeft: ${this.timeRemaining}`)
         this.connections.forEach(c => {
@@ -432,6 +500,7 @@ module.exports = class GameLobby extends LobbyBase {
         // console.log("setting host... " + connection + " lobby: " + this.id);
         this.host = connection;
         connection.socket.emit("setHost", { });
+        // this.InitializeGameBots();
     }
 
     ResetGame() {
