@@ -257,9 +257,8 @@ module.exports = class GameLobby extends LobbyBase {
 
     InitializeGameBots() {
         // minus one to account for standard update bot behavior
-        for (let i = 0; i < this.settings.maxPlayers; i++) {
-            // let newBot = new Bot();
-            // this.bots.push(new Bot());
+        for (let i = 0; i < this.settings.maxPlayers - 2; i++) {
+            console.log("bots! " + (i + 1) + " / " + this.settings.maxPlayers);
             this.AddBot()
         }
     }
@@ -334,30 +333,35 @@ module.exports = class GameLobby extends LobbyBase {
         })
         // console.log(`found projectiles: ${returnProjectiles.length}`);
         // will likely only deal with one entry, but iterate through array in case multiple returned
+        let playerHit = false;
+        let botHit = false;
         returnProjectiles.forEach(projectile => {
 
-            let playerHit = false;
             // check if hit someone that is not us
             lobby.connections.forEach( c => {
                 let player = c.player;
                 if (projectile.activator != player.id) {
-                    // console.log(`projectile position: ${projectile.position.x}, ${projectile.position.y}, ${projectile.position.z} player position ${player.position.x}, ${player.position.y}, ${player.position.z}`);
+                    console.log(`projectile position: ${projectile.position.x}, ${projectile.position.y}, ${projectile.position.z} player position ${player.position.x}, ${player.position.y}, ${player.position.z}`);
                     let distance = projectile.position.Distance(player.position);
-                    // console.log("distance to player " + player.id + " - " + distance);
+                    console.log("distance to player (" + player.id + ") " + player.username + " - " + distance);
                     if (distance < this.settings.blastRadius) {
                         // console.log("player hit");
                         playerHit = true;
                         let dmg = Math.floor(this.Damage.ScaleDamageByDistance(this.settings.baseDamage, distance, this.settings.blastRadius));
                         let score = Math.ceil(dmg * 10)
                         let isDead = player.DealDamage(dmg); // half health
-                        connection.player.score += score;
+                        let attacker = this.GetActivePlayers().filter(p => {
+                            return p.id == projectile.activator;
+                        })[0];
+                        attacker.score += score;
+                        // connection.player.score += score;
                         if (isDead) {
-                            // console.log("Player with id " + player.id + " has died");
+                            console.log("Player with id " + player.id + " has died");
                             let returnData = {
                                 id: player.id,
                                 attackerId: projectile.activator,
                                 hitScore: score,
-                                playerScore: connection.player.score,
+                                playerScore: attacker.score,
                             }
                             c.socket.emit('playerDied', returnData);
                             c.socket.broadcast.to(lobby.id).emit('playerDied', returnData);
@@ -367,20 +371,63 @@ module.exports = class GameLobby extends LobbyBase {
                                 currentHealth: player.health,
                                 damage: dmg,
                                 hitScore: score,
-                                playerScore: connection.player.score,
+                                playerScore: attacker.score,
                                 attackerId: projectile.activator,
                             }
                             c.socket.emit('playerHit', returnData);
                             c.socket.broadcast.to(lobby.id).emit('playerHit', returnData);
-                            // console.log("player with id " + player.id + " has ( " + player.health + " ) health left.");
+                            console.log("player with id " + player.id + " has ( " + player.health + " ) health left.");
                         }
-                        // projectile.isDestroyed = true;
-                        
-                        lobby.DespawnProjectile(projectile);
+                        projectile.isDestroyed = true;
                     }
                 }
             });
-            if (!playerHit)
+            // bot damage check
+            lobby.bots.forEach( bot => {
+                if (projectile.activator != bot.id) {
+                    let distance = projectile.position.Distance(bot.position);
+                    // console.log("distance to bot (" + bot.id + ") " + bot.username + " - " + distance);
+                    // console.log(`projectile position: ${projectile.position.x}, ${projectile.position.y}, ${projectile.position.z} bot position ${bot.position.x}, ${bot.position.y}, ${bot.position.z}`);
+                    if (distance < this.settings.blastRadius) {
+                        console.log("bot hit");
+                        botHit = true;
+                        let dmg = Math.floor(this.Damage.ScaleDamageByDistance(this.settings.baseDamage, distance, this.settings.blastRadius));
+                        let score = Math.ceil(dmg * 10)
+                        let isDead = bot.DealDamage(dmg); // half health
+                        let attacker = this.GetActivePlayers().filter(p => {
+                            return p.id == projectile.activator;
+                        })[0];
+                        attacker.score += score;
+                        // bot.score += score;
+                        if (isDead) {
+                            // console.log("Player with id " + player.id + " has died");
+                            let returnData = {
+                                id: bot.id,
+                                attackerId: projectile.activator,
+                                hitScore: score,
+                                playerScore: attacker.score,
+                            }
+                            connection.socket.emit('playerDied', returnData);
+                            connection.socket.broadcast.to(lobby.id).emit('playerDied', returnData);
+                        } else {
+                            let returnData = {
+                                id: bot.id,
+                                currentHealth: bot.health,
+                                damage: dmg,
+                                hitScore: score,
+                                playerScore: attacker.score,
+                                attackerId: projectile.activator,
+                            }
+                            connection.socket.emit('playerHit', returnData);
+                            connection.socket.broadcast.to(lobby.id).emit('playerHit', returnData);
+                            // console.log("player with id " + player.id + " has ( " + player.health + " ) health left.");
+                        }
+                        projectile.isDestroyed = true;
+                    }
+                }
+            });
+            lobby.DespawnProjectile(projectile);
+            if (botHit || playerHit)
             projectile.isDestroyed = true;
         });
     }
@@ -401,12 +448,19 @@ module.exports = class GameLobby extends LobbyBase {
         // console.log('spawning player...');
         socket.emit('spawn', player); // tell myself it has spawned
         socket.broadcast.to(lobby.id).emit('spawn', player); // tell other sockets of new spawn
-
+        this.bots.forEach(b => {
+            socket.emit('spawnBot', b);
+        });
         this.UpdateBots();
         // tell myself about everyone else in the game
         // connections.forEach(c => {
         //     if (c.player.id != connection.player.id) {
         //         socket.emit('spawn', c.player);
+        //     }
+        // });
+        // this.GetActivePlayers().forEach(p => {
+        //     if (p.id != connection.player.id) {
+        //         socket.emit('spawn', p);
         //     }
         // });
     }

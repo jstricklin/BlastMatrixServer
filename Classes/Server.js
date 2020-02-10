@@ -123,7 +123,7 @@ module.exports = class Server {
             // console.log('making new game lobby');
             let gameLobby = new GameLobby(shortid.generate(), new GameLobbySettings(`GameLobby ${gameLobbies.length + 1}`, 'FFA', 6));
             server.lobbies.push(gameLobby);
-            // console.log("made lobby " + gameLobby.id);
+            console.log("made lobby " + gameLobby.settings.maxPlayers);
             server.OnSwitchLobby(connection, gameLobby.id);
             gameLobby.SetHost(connection);
         }
