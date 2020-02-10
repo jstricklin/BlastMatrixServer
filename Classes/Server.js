@@ -84,16 +84,21 @@ module.exports = class Server {
         delete server.connections[id];
         console.log('player ' + connection.player.DisplayPlayerInformation() + ' has disconnected');
 
+        // if server host and server not empty, set new host
+        let lobby = server.lobbies.filter(lobby => {
+            return lobby.id == connection.player.lobby;
+        })[0];
+        // if (lobby.host == connection && lobby.connections.length > 1) {
+        //     console.log("setting new host... " + connection.player.username);
+        //     lobby.SetHost(lobby.connections.filter(c => c != connection)[0]);
+        // }
         // tell other players in lobby that we disconnected
         connection.socket.broadcast.to(connection.player.lobby).emit('disconnected', {
             id: id,
         });
         // cleanup lobby
         // server.lobbies[connection.player.lobby].OnLeaveLobby(connection);
-        server.lobbies.filter(lobby => {
-            return lobby.id == connection.player.lobby;
-        })[0].OnLeaveLobby(connection);
-
+        lobby.OnLeaveLobby(connection);
 
     }
 

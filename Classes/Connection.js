@@ -106,19 +106,18 @@ module.exports = class Connection {
             bot.position.y = data.position.y;
             bot.position.z = data.position.z;
 
-            socket.broadcast.to(connection.lobby.id).emit('updateBotPosition', bot);
+            socket.broadcast.to(connection.lobby.id).emit('updatePosition', bot);
         });
         
         socket.on('updateBotRotation', (data) => {
-            let bot = connection.lobby.bots.filter(bot => {
-                return bot.id == data.id;
+            let bot = connection.lobby.bots.filter(b => {
+                return b.id == data.id;
             })[0];
             if (typeof bot === 'undefined') return;
             bot.weaponRotation = data.rotation.weaponRotation;
             bot.barrelRotation = data.rotation.barrelRotation;
             bot.rotation = data.rotation.rotation;
-            // console.log("updating rotation");
-            socket.broadcast.to(connection.lobby.id).emit('updateBotRotation', bot);
+            socket.broadcast.to(connection.lobby.id).emit('updateRotation', bot);
         });
         socket.on('updateProjectile', (data) => {
             connection.lobby.OnUpdateProjectile(connection, data);
