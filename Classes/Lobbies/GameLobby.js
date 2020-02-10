@@ -600,10 +600,10 @@ module.exports = class GameLobby extends LobbyBase {
     ResetGame() {
         // console.log("resetting game");
         let lobby = this;
-        this.bots.forEach(bot => {
-            bot.score = 0;
-            bot.position = this.GetSpawnPoint();
-        });
+        // this.bots.forEach(bot => {
+        //     bot.score = 0;
+        //     bot.position = this.GetSpawnPoint();
+        // });
         this.connections.forEach(c => {
             let player = c.player;
             let pos = this.GetSpawnPoint();
