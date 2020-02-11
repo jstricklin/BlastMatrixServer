@@ -222,7 +222,7 @@ module.exports = class GameLobby extends LobbyBase {
     MessagePlayerJoined(newPlayer = Connection)
     {
         let serv = new Player('Server');
-        let msg = `${newPlayer.username} has joined the game`
+        let msg = `${newPlayer.player.username} has joined the game`
         let message = new Message(serv, msg);
         newPlayer.socket.broadcast.to(newPlayer.lobby.id).emit("messageReceived", message);
         msg = `Welcome${typeof newPlayer.player.username == 'undefined' ? "" : ", " + newPlayer.player.username}! Press Enter to Chat.`;
@@ -230,12 +230,13 @@ module.exports = class GameLobby extends LobbyBase {
         message.welcomeMessage = true;
         newPlayer.socket.emit("messageReceived", message);
     }
-
+    // TODO build this
     MessagePlayer(connection = Connection, message = String)
     {
         connection.socket.emit("messageReceived", message);
     }
 
+    // TODO build this
     MessageLobby()
     {
         super.OnMessageReceived();

@@ -126,7 +126,7 @@ module.exports = class Server {
         // all lobbies are full or we have not create one yet --- encapsulate below
         if (!lobbyFound) {
             // console.log('making new game lobby');
-            let gameLobby = new GameLobby(shortid.generate(), new GameLobbySettings(`GameLobby ${gameLobbies.length + 1}`, 'FFA', 6));
+            let gameLobby = new GameLobby(shortid.generate(), new GameLobbySettings(`GameLobby ${gameLobbies.length + 1}`, 'FFA', 8));
             server.lobbies.push(gameLobby);
             console.log("made lobby " + gameLobby.settings.maxPlayers);
             server.OnSwitchLobby(connection, gameLobby.id);
@@ -140,7 +140,7 @@ module.exports = class Server {
             return lobby instanceof GameLobby;
         });
         // console.log('making new game lobby');
-        let gameLobby = new GameLobby(shortid.generate(), new GameLobbySettings(settings.name, 'FFA', 6));
+        let gameLobby = new GameLobby(shortid.generate(), new GameLobbySettings(settings.name, 'FFA', 8));
         server.lobbies.push(gameLobby);
         console.log("made lobby " + gameLobby.id);
         server.OnSwitchLobby(connection, gameLobby.id);

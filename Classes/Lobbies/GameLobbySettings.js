@@ -3,7 +3,7 @@ module.exports = class GameLobbySettings {
         this.name = name;
         this.gameMode = gameMode;
         this.maxPlayers = maxPlayers;
-        this.blastRadius = 5;
+        this.blastRadius = 6;
         this.baseDamage = 35;
         this.gameLength = gameLength;
     }
