@@ -193,13 +193,13 @@ module.exports = class Server {
         // lobbies[connection.player.lobby].OnMessageReceived(message);
     }
 
-    BroadcastServerMessage(data) {
+    BroadcastServerAlert(data) {
         let server = this;
         let lobbies = server.lobbies;
-        let serv = new Player('server');
-        serv.username = "server";
+        let serv = new Player('Server');
+        // serv.username = "server";
         let message = new Message(serv, data);
-        message.serverMessage = true;
+        message.serverAlert = true;
 
         this.messages.push(message);
 

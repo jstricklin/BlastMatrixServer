@@ -21,11 +21,12 @@ module.exports = class NameGenerator {
             "Swole",
             "Super",
             "Bold",
-            "Wrecked",
             "Frenzied",
             "Amazing",
             "Awesome",
-            "Shocking",
+            "Lit",
+            "Disco",
+            "Mad",
             "Frozen"
         ];
         this.femNounList = [
@@ -47,6 +48,7 @@ module.exports = class NameGenerator {
         this.mascNounList = [
             "Horse",
             "Cobra",
+            "Taco",
             "Scorpion",
             "Enforcer",
             "Void",
@@ -88,6 +90,7 @@ module.exports = class NameGenerator {
         this.femNameList = [
             "Sally",
             "Susan",
+            "Maggie",
             "Jen",
             "Bertha",
             "Sammie",
@@ -143,9 +146,9 @@ module.exports = class NameGenerator {
             }
         }
         // Leetify
-        if (Math.floor((Math.random() * 10) + 1) > 8) {
-            name = this.Leetify(name);
-        }
+        // if (Math.floor((Math.random() * 10) + 1) > 8) {
+        //     name = this.Leetify(name);
+        // }
         // Decorate
         if (Math.floor((Math.random() * 10) + 1) > 7) {
             name = this.Decorate(name);

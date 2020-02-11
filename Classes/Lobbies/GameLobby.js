@@ -8,9 +8,10 @@ const Rotation = require('../Rotation');
 const Damage = require('../Utility/Damage');
 const SpawnPoint = require('../SpawnPoint');
 const Bot = require('../Bot');
+const Message = require('../Message');
+const Player = require('../Player');
 
 module.exports = class GameLobby extends LobbyBase {
-
 
     constructor(id, settings = GameLobbySettings) {
         super(id);
@@ -23,6 +24,8 @@ module.exports = class GameLobby extends LobbyBase {
         this.host;
         this.bots = [];
         this.LobbyState.currentState = this.LobbyState.GAME;
+        this.totalMatchesPlayed = 1;
+        this.welcomeMessage = "Welcome to Blast Matrix";
     }
     OnUpdate() {
         let lobby = this;
@@ -192,16 +195,50 @@ module.exports = class GameLobby extends LobbyBase {
     OnLevelLoaded(connection = Connection)
     {
         let lobby = this;
+        this.upTime = super.GetMatchTime();
+        // catch players entering at end state
         if (this.LobbyState != LobbyState.ENDGAME) {
             lobby.AddPlayer(connection);
-            if (connection == lobby.host)
+            if (connection == lobby.host && this.totalMatchesPlayed == 1) {
+                console.log('initializing bots');
                 lobby.InitializeGameBots();
+            }
         }  else {
             connection.socket.emit('endGame', {
                 matchResults: resultString,
                 countdownTime: 10,
             })
         }
+    }
+
+    MessagePlayerLeft(newPlayer = Connection)
+    {
+        let serv = new Player('server');
+        let msg = `${newPlayer.player.username} has left the game`
+        let message = new Message(serv, msg);
+        newPlayer.socket.broadcast.to(this.id).emit("messageReceived", message);
+    }
+
+    MessagePlayerJoined(newPlayer = Connection)
+    {
+        let serv = new Player('Server');
+        let msg = `${newPlayer.username} has joined the game`
+        let message = new Message(serv, msg);
+        newPlayer.socket.broadcast.to(newPlayer.lobby.id).emit("messageReceived", message);
+        msg = `Welcome${typeof newPlayer.player.username == 'undefined' ? "" : ", " + newPlayer.player.username}! Press Enter to Chat.`;
+        message.message = msg;
+        message.welcomeMessage = true;
+        newPlayer.socket.emit("messageReceived", message);
+    }
+
+    MessagePlayer(connection = Connection, message = String)
+    {
+        connection.socket.emit("messageReceived", message);
+    }
+
+    MessageLobby()
+    {
+        super.OnMessageReceived();
     }
     
     GetSpawnPoint()
@@ -284,8 +321,9 @@ module.exports = class GameLobby extends LobbyBase {
     }
 
     InitializeGameBots() {
-        // minus one to account for standard update bot behavior
-        for (let i = 0; i < this.settings.maxPlayers - 2; i++) {
+        // minus one to account for host
+        console.log("matches played: " + this.totalMatchesPlayed);
+        for (let i = 0; i < this.settings.maxPlayers - 1; i++) {
             console.log("bots! " + (i + 1) + " / " + this.settings.maxPlayers);
             this.AddBot()
         }
@@ -311,8 +349,8 @@ module.exports = class GameLobby extends LobbyBase {
         newBot.rotation = pos.rotation;
 
         this.bots.push(newBot);
-        console.log("bot added... players: " + lobby.connections.length + " bots: " + this.bots.length);
-        console.log("new bot: " + newBot.username);
+        // console.log("bot added... players: " + lobby.connections.length + " bots: " + this.bots.length);
+        // console.log("new bot: " + newBot.username);
         lobby.connections.forEach(c => {
             c.socket.emit("spawnBot", newBot);
         });
@@ -325,13 +363,13 @@ module.exports = class GameLobby extends LobbyBase {
             index = Math.floor(Math.random() * this.bots.length);
         }
         let toDespawn = this.bots.splice(index, 1)[0];
-        console.log("bot to remove: " + toDespawn.username);
+        // console.log("bot to remove: " + toDespawn.username);
         lobby.connections.forEach(c => {
             c.socket.emit("despawnBot", {
                 id: toDespawn.id
             });
         });
-        console.log("bot removed... players: " + this.currentPlayerCount + " bots: " + this.bots.length);
+        // console.log("bot removed... players: " + this.currentPlayerCount + " bots: " + this.bots.length);
     }
 
     OnUpdateProjectile(connection = Connection, data)
@@ -490,14 +528,20 @@ module.exports = class GameLobby extends LobbyBase {
         socket.broadcast.to(lobby.id).emit('spawn', player); // tell other sockets of new spawn
         this.bots.forEach(b => {
             socket.emit('spawnBot', b);
+            console.log("spawning bots to added player: " + b.username);
         });
-        this.UpdateBots(1);
+        // catch host to avoid despawning bots on match restart 
+        if (connection != this.host)
+        {
+            this.UpdateBots(1);
+        }
         // tell myself about everyone else in the game
         connections.forEach(c => {
             if (c.player.id != connection.player.id) {
                 socket.emit('spawn', c.player);
             }
         });
+        this.MessagePlayerJoined(connection);
         // this.GetActivePlayers().forEach(p => {
         //     if (p.id != connection.player.id) {
         //         socket.emit('spawn', p);
@@ -511,6 +555,7 @@ module.exports = class GameLobby extends LobbyBase {
             id: connection.player.id,
         });
         this.UpdateBots(-1);
+        this.MessagePlayerLeft(connection);
     }
 
     UpdateGameState() {
@@ -599,25 +644,30 @@ module.exports = class GameLobby extends LobbyBase {
 
     ResetGame() {
         // console.log("resetting game");
+        this.totalMatchesPlayed++;
         let lobby = this;
-        // this.bots.forEach(bot => {
-        //     bot.score = 0;
-        //     bot.position = this.GetSpawnPoint();
-        // });
-        this.connections.forEach(c => {
+        this.ResetGameBots();
+        lobby.connections.forEach(c => {
             let player = c.player;
             let pos = this.GetSpawnPoint();
             c.socket.emit('loadGame', c.player.name);
             player.position = pos.position;
             player.rotation = pos.rotation;
             player.score = 0;
-            // console.log('spawning player...');
-            // c.socket.emit('spawn', c.player); // tell myself it has spawned
-            // c.socket.broadcast.to(lobby.id).emit('spawn', c.player); // tell other sockets of new spawn
 
         });
         this.startTime = new Date();
         this.timeRemaining = this.settings.gameLength;
         this.LobbyState.currentState = this.LobbyState.GAME;
+    }
+    ResetGameBots()
+    {
+        let lobby = this;
+        lobby.bots.forEach(bot => {
+            bot.score = 0;
+            let pos = this.GetSpawnPoint();
+            bot.position = pos.position;
+            bot.rotation = pos.rotation;
+        });
     }
 }

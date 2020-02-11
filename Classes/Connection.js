@@ -26,7 +26,7 @@ module.exports = class Connection {
             let servTest = new RegExp('bserv ')
             let lobbTest = new RegExp('blobby ')
             if (servTest.test(message)) {
-                server.BroadcastServerMessage(message.replace('bserv ', ''));
+                server.BroadcastServerAlert(message.replace('bserv ', ''));
             } else if (lobbTest.test(message)) {
                 server.BroadcastLobbyMessage(message.replace('blobby ', ''));
             } else {

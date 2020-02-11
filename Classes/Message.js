@@ -3,6 +3,8 @@ module.exports = class Message {
         this.player = player;
         this.message = message;
         this.date = new Date();
-        this.serverMessage = false;
+        this.serverAlert = false;
+        // this.serverMessage = false;
+        this.welcomeMessage = false;
     }
 }
