@@ -10,15 +10,17 @@ module.exports = class NameGenerator {
             "Rad",
             "Lugubrious",
             "Lost",
-            "Commanding",
             "TenFoot",
             "Tiny",
+            "Terrible",
             "Tragic",
             "Strong",
             "Punk",
             "Metal",
             "Cosmic",
-            "Swole",
+            "Fat",
+            // "Swole",
+            "OneEyed",
             "Super",
             "Bold",
             "Frenzied",
@@ -38,6 +40,7 @@ module.exports = class NameGenerator {
             "Riot",
             "Bat",
             "Cat",
+            "CatGirl",
             "Girl",
             "Lady",
             "Panther",
@@ -69,11 +72,11 @@ module.exports = class NameGenerator {
             "Man",
             "Smoke",
             "Crash",
-            "Wreck",
             "Train",
             "Ghost",
             "Shock",
             "Cold",
+            "Zero"
         ];
         this.mascNameList = [
             "Bob",
@@ -110,7 +113,7 @@ module.exports = class NameGenerator {
         // Generate base name
         if (femName) {
             if (useName) {
-                if (Math.floor((Math.random() * 10) + 1) > 7) {
+                if (Math.floor((Math.random() * 10) + 1) > 9) {
                     name = `${this.femNameList[Math.floor(Math.random() * this.femNameList.length)]}${this.Preposition()}${this.femNounList[Math.floor(Math.random() * this.femNounList.length)]}`;
                 } else if (Math.floor((Math.random() * 10) + 1) > 5) {
                     name = `${this.femNounList[Math.floor(Math.random() * this.femNounList.length)]}${this.femNameList[Math.floor(Math.random() * this.femNameList.length)]}`;
@@ -118,7 +121,7 @@ module.exports = class NameGenerator {
                     name = `${this.adjectiveList[Math.floor(Math.random() * this.adjectiveList.length)]}${this.femNameList[Math.floor(Math.random() * this.femNameList.length)]}`;
                 }
             } else {
-                if (Math.floor((Math.random() * 10) + 1) > 7) {
+                if (Math.floor((Math.random() * 10) + 1) > 9) {
                     name = `${this.Preposition()}${this.adjectiveList[Math.floor(Math.random() * this.adjectiveList.length)]}${this.femNounList[Math.floor(Math.random() * this.femNounList.length)]}`;
                 } else if (Math.floor((Math.random() * 10) + 1) > 5) {
                     name = `${this.femNounList[Math.floor(Math.random() * this.femNounList.length)]}${this.Preposition()}${this.adjectiveList[Math.floor(Math.random() * this.adjectiveList.length)]}`;
@@ -128,7 +131,7 @@ module.exports = class NameGenerator {
             }
         } else {
             if (useName) {
-                if (Math.floor((Math.random() * 10) + 1) > 7) {
+                if (Math.floor((Math.random() * 10) + 1) > 9) {
                     name = `${this.mascNameList[Math.floor(Math.random() * this.mascNameList.length)]}${this.Preposition()}${this.mascNounList[Math.floor(Math.random() * this.mascNounList.length)]}`;
                 } else if (Math.floor((Math.random() * 10) + 1) > 5) {
                     name = `${this.mascNounList[Math.floor(Math.random() * this.mascNounList.length)]}${this.mascNameList[Math.floor(Math.random() * this.mascNameList.length)]}`;
@@ -136,7 +139,7 @@ module.exports = class NameGenerator {
                     name = `${this.adjectiveList[Math.floor(Math.random() * this.adjectiveList.length)]}${this.mascNameList[Math.floor(Math.random() * this.mascNameList.length)]}`;
                 }
             } else {
-                if (Math.floor((Math.random() * 10) + 1) > 7) {
+                if (Math.floor((Math.random() * 10) + 1) > 9) {
                     name = `${this.Preposition()}${this.adjectiveList[Math.floor(Math.random() * this.adjectiveList.length)]}${this.mascNounList[Math.floor(Math.random() * this.mascNounList.length)]}`;
                 } else if (Math.floor((Math.random() * 10) + 1) > 5) {
                     name = `${this.mascNounList[Math.floor(Math.random() * this.mascNounList.length)]}${this.Preposition()}${this.adjectiveList[Math.floor(Math.random() * this.adjectiveList.length)]}`;

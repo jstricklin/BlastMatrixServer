@@ -4,7 +4,7 @@ module.exports = class Message {
         this.message = message;
         this.date = new Date();
         this.serverAlert = false;
-        // this.serverMessage = false;
+        this.serverMessage = false;
         this.welcomeMessage = false;
     }
 }

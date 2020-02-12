@@ -213,7 +213,7 @@ module.exports = class GameLobby extends LobbyBase {
 
     MessagePlayerLeft(newPlayer = Connection)
     {
-        let serv = new Player('server');
+        let serv = new Player('Server');
         let msg = `${newPlayer.player.username} has left the game`
         let message = new Message(serv, msg);
         newPlayer.socket.broadcast.to(this.id).emit("messageReceived", message);
