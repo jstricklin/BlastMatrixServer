@@ -45,6 +45,12 @@ module.exports = class Connection {
             });
             connection.socket.emit("lobbyQuery", lobbies);
         })
+        socket.on('queryPlayerTank', (data) => {
+            server.OnGetPlayerTank(connection, data);
+        });
+        socket.on('savePlayerTank', (data) => {
+            server.OnSavePlayerTank(connection, data);
+        });
         socket.on('disconnect', () => {
             server.OnDisconnected(connection);
         });

@@ -527,15 +527,15 @@ module.exports = class GameLobby extends LobbyBase {
         // console.log('spawning player...');
         socket.emit('spawn', player); // tell myself it has spawned
         socket.broadcast.to(lobby.id).emit('spawn', player); // tell other sockets of new spawn
-        this.bots.forEach(b => {
-            socket.emit('spawnBot', b);
-            console.log("spawning bots to added player: " + b.username);
-        });
         // catch host to avoid despawning bots on match restart 
         if (connection != this.host)
         {
             this.UpdateBots(1);
         }
+        this.bots.forEach(b => {
+            socket.emit('spawnBot', b);
+            console.log("spawning bots to added player: " + b.username);
+        });
         // tell myself about everyone else in the game
         connections.forEach(c => {
             if (c.player.id != connection.player.id) {

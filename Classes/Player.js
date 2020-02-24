@@ -1,6 +1,7 @@
 const shortId = require('shortid');
 const Vector3 = require('./Vector3')
 const Rotation = require('./Rotation');
+const Tank = require('./Tank');
 
 module.exports = class Player {
     constructor(name = 'Default_Player') {
@@ -16,6 +17,7 @@ module.exports = class Player {
         this.isDead = false;
         this.respawnTicker = new Number(0);
         this.respawnTime = new Number(0);
+        this.tank = new Tank();
     }
 
     DisplayPlayerInformation() {

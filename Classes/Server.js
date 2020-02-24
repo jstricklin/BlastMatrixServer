@@ -2,6 +2,7 @@ const Connection = require('./Connection');
 const Player = require('./Player');
 const LobbyState = require('./Utility/LobbyState');
 const Message = require('./Message');
+const Tank = require('./Tank');
 
 // lobbies
 const LobbyBase = require('./Abstract/LobbyBase');
@@ -75,6 +76,28 @@ module.exports = class Server {
         //     console.log(name.GenerateName());
         // }
         return connection;
+    }
+    OnGetPlayerTank(connection = Connection, data) {
+        // connection.player.tank
+        let tankData = new Tank();
+        if (connection.player.tank.primaryColor == "DEFAULT") {
+            console.log("default tank");
+            tankData = data;
+        } else {
+            tankData = connection.player.tank;
+            // console.log("saved tank returned " + tankData.primaryColor.g);
+        }
+        connection.socket.emit("updatePlayerTank", { tank: tankData });
+    }
+
+    OnSavePlayerTank(connection = Connection, data) {
+        // connection.player.tank.body = data.body;
+        // connection.player.tank.cannon = data.cannon;
+        // connection.player.tank.barrel = data.barrel;
+        // connection.player.tank.primaryColor = data.primaryColor;
+        connection.player.tank = data;
+        console.log("tank saved " + data.primaryColor.a);
+        this.OnGetPlayerTank(connection)
     }
 
     OnDisconnected(connection = Connection) {
