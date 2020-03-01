@@ -102,11 +102,12 @@ module.exports = class Connection {
             socket.broadcast.to(connection.lobby.id).emit('updateRotation', player);
         });
         socket.on('updateBotPosition', (data) => {
+            if (typeof connection.lobby.bots == 'undefined') return;
             let bot = connection.lobby.bots.filter(b => {
                 // console.log("checking bot " + b.id + " data id: " + data.id);
                 return b.id == data.id;
             })[0];
-            if (typeof bot === 'undefined') return;
+            // if (typeof bot === 'undefined') return;
             // console.log(bot.username + " moving... " + bot.position);
             bot.position.x = data.position.x;
             bot.position.y = data.position.y;
@@ -116,6 +117,7 @@ module.exports = class Connection {
         });
         
         socket.on('updateBotRotation', (data) => {
+            if (typeof connection.lobby.bots == 'undefined') return;
             let bot = connection.lobby.bots.filter(b => {
                 return b.id == data.id;
             })[0];
